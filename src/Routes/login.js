@@ -90,7 +90,7 @@ function Login() {
   }, 10000); // 10 seconds timeout for safety
 
   const receiveMessage = async (event) => {
-    if (event.origin !== "https://frontend-app-inky-three.vercel.app") return;
+    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
 
     clearTimeout(timeout);
     window.removeEventListener("message", receiveMessage);
