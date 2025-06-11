@@ -96,43 +96,45 @@ function Login() {
 ];
 
 const receiveMessage = async (event) => {
-  // DEBUG: See what origin is sending the message
-  console.log("OAuth message from:", event.origin, event.data);
-
-  if (!allowedOrigins.includes(event.origin)) return;
+  // Only process messages that contain a token and success flag
+  if (
+    !allowedOrigins.includes(event.origin) ||
+    !event.data ||
+    !event.data.success ||
+    !event.data.token
+  ) {
+    // Ignore unrelated messages (like from React DevTools)
+    return;
+  }
 
   clearTimeout(timeout);
   window.removeEventListener("message", receiveMessage);
   popup?.close();
 
-  if (event.data.success && event.data.token) {
-    localStorage.setItem("token", event.data.token);
-    localStorage.setItem("isLoggedIn", "true");
+  localStorage.setItem("token", event.data.token);
+  localStorage.setItem("isLoggedIn", "true");
 
-    try {
-      const userRes = await axios.get(
-        "https://new-backend-3jbn.onrender.com/auth/user",
-        {
-          headers: {
-            Authorization: `Bearer ${event.data.token}`,
-          },
-        }
-      );
-
-      if (userRes.data.success) {
-        localStorage.setItem("user", JSON.stringify(userRes.data.user));
-        setLoadingBtn("");
-        navigate("/homepage");
-      } else {
-        setLoadingBtn("");
-        navigate("/login");
+  try {
+    const userRes = await axios.get(
+      "https://new-backend-3jbn.onrender.com/auth/user",
+      {
+        headers: {
+          Authorization: `Bearer ${event.data.token}`,
+        },
       }
-    } catch (err) {
+    );
+
+    if (userRes.data.success) {
+      localStorage.setItem("user", JSON.stringify(userRes.data.user));
+      setLoadingBtn("");
+      navigate("/homepage");
+    } else {
       setLoadingBtn("");
       navigate("/login");
     }
-  } else {
+  } catch (err) {
     setLoadingBtn("");
+    navigate("/login");
   }
 };
 
