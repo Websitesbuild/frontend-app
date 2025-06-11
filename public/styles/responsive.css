@@ -1,0 +1,610 @@
+
+/* Responsive Design-1 */
+@media (max-width: 768px) {
+
+    /* style home */
+
+    .home h1 {
+        font-size: 2.5rem;
+    }
+    .home p {
+        font-size: 1.2rem;
+    }
+    .home img {
+        width: 200px;
+        height: 200px;
+    }
+
+    /* style about */
+
+
+    .about h1, .contact h1 {
+        font-size: 2rem;
+    }
+    .about p, .contact p {
+        font-size: 1rem;
+    }
+
+    /* style login */
+
+
+    .login-box {
+        flex-direction: column;
+        width: 100%;
+    }
+    .login-box form, .social-login {
+        width: 100%;
+        padding: 10px;
+    }
+    .login-box form input {
+        font-size: 0.9rem;
+    }
+    .login-box form button {
+        font-size: 1rem;
+    }
+    .login-box form div span{
+    top: 40px;
+    }
+
+
+    /* style social-login */
+
+
+    
+
+
+    /* style header */
+
+
+    .header {
+        padding: 10px 15px;
+    }
+    .header .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .header .container nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .header .container nav ul li {
+        display: flex;
+        gap: 20px;
+    }
+
+    .header .container nav a {
+        font-size: 1rem;
+    }
+
+
+    /* style content */
+
+    .content {
+        margin-top: 176px; /* Adjusted for fixed header */
+        padding: 15px;
+    }
+    .content .heading {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    .content .heading h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    .content .heading a {
+        font-size: 1rem;
+    }
+    .content .heading a i {
+        font-size: 1.2rem;
+    }
+
+
+    .content .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .content .project-list .project-item {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .content .project-list .project-item h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+
+    }
+    .content .project-list .project-item p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    .pop-up-form {
+        width: 100%;
+        padding: 20px;
+    }
+    .pop-up-form h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    .pop-up-form form input {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    .pop-up-form form textarea {
+        font-size: 0.9rem;
+        padding: 10px;
+        height: 100px;
+    }
+    .pop-up-form form button {
+        font-size: 1rem;
+        padding: 10px;
+    }
+    .project-detail{
+        margin-top: 180px;
+        padding: 20px;
+    }
+    .project-detail .project-head{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .project-detail .project-head h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+    .project-detail .project-head p {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+    .project-detail .project-status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .project-detail .project-status p{
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-info {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .project-detail .project-info p{
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-members {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .project-detail .project-members .member{
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .project-detail .project-members .member p{
+        font-size: 0.9rem;
+    }
+
+    
+
+    
+
+
+
+    /* style footer */
+
+    footer {
+        position: relative;
+        padding: 20px 0;
+    }
+    footer p {
+        font-size: 0.8rem;
+    }
+
+}
+
+
+
+
+/* Responsive Design-2 */
+@media (max-width: 576px) {
+
+    /* style home */
+    .home h1 {
+        font-size: 2rem;
+    }
+    .home p {
+        font-size: 1rem;
+    }
+    .home img {
+        width: 150px;
+        height: 150px;
+    }
+
+
+/* style about */
+
+    .about h1, .contact h1 {
+        font-size: 1.5rem;
+    }
+    .about p, .contact p {
+        font-size: 0.9rem;
+    }
+
+/* style login */
+
+
+    .login-box {
+        flex-direction: column;
+        width: 100%;
+    }
+    .login-box form, .social-login {
+        width: 100%;
+        padding: 10px;
+    }
+    .login-box form input {
+        font-size: 0.8rem;
+    }
+    .login-box form button {
+        font-size: 0.9rem;
+    }
+
+    .social-login a {
+        font-size: 0.9rem;
+    }
+    .social-login a i {
+        font-size: 1rem;
+    }
+    
+
+
+    /* style header */
+    .header {
+        padding: 10px 15px;
+    }
+    .header .container {
+        flex-direction: column;
+        align-items: center ;
+    }
+    .header .container nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+ .container nav ul li {
+        display: flex;
+        gap: 10px;
+    }
+
+    .header .container nav a {
+        font-size: 1rem;
+    }
+
+    /* style content */
+
+    .content {
+        margin-top: 170px; /* Adjusted for fixed header */
+        padding: 15px;
+    }
+    .content .heading {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    .content .heading h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .content .heading a {
+        font-size: 0.9rem;
+    }
+    .content .heading a i {
+        font-size: 1rem;
+    }
+
+    .content .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .content .project-list .project-item {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        /* border: 1px solid red; */
+    }
+    .content .project-list .project-item h3 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+    .content .project-list .project-item p {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+    .pop-up-form {
+        width: 100%;
+        padding: 15px;
+    }
+    .pop-up-form h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .pop-up-form form input {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+    .pop-up-form form textarea {
+        font-size: 0.8rem;
+        padding: 8px;
+        height: 80px;
+    }
+    .pop-up-form form button {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+    .project-detail{
+        margin-top: 200px;
+        padding: 15px;
+    }
+    .project-detail .project-head{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .project-detail .project-head h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-head p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .project-detail .project-status p{
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .project-detail .project-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .project-detail .project-info p{
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+    .project-detail .project-members {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .project-detail .project-members .member{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .project-detail .project-members .member p{
+        font-size: 0.8rem;
+    }
+
+
+
+
+
+    
+    
+
+    
+
+    
+    /* style footer */
+    footer {
+        position: relative;
+        padding: 15px 0;
+    }
+    footer p {
+        font-size: 0.7rem;
+    }
+
+}
+
+
+
+
+@media (max-width: 400px)  {
+
+    /* style home */
+    .home h1 {
+        font-size: 1.5rem;
+    }
+    .home p {
+        font-size: 0.8rem;
+    }
+    .home img {
+        width: 120px;
+        height: 120px;
+    }
+
+    /* style about */
+
+    .about h1, .contact h1 {
+        font-size: 1.2rem;
+    }
+    .about p, .contact p {
+        font-size: 0.8rem;
+    }
+    /* style login */
+    .login-box {
+        flex-direction: column;
+        width: 100%;
+    }
+    .login-box form, .social-login {
+        width: 100%;
+        padding: 10px;
+    }
+    .login-box form input {
+        font-size: 0.7rem;
+    }
+    .login-box form button {
+        font-size: 0.8rem;
+    }
+    .social-login a {
+        font-size: 0.8rem;
+    }
+    .social-login a i {
+        font-size: 0.9rem;
+    }
+    /* style header */
+    .header {
+        padding: 10px 15px;
+    }
+    .header .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .header .container nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .header .container nav ul li {
+        display: flex;
+        gap: 10px;
+    }
+    .header .container nav a {
+        font-size: 0.9rem;
+    }
+    /* style content */
+    .content {
+        margin-top: 200px; /* Adjusted for fixed header */
+        padding: 15px;
+    }
+    .content .heading {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    .content .heading h2 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+    .content .heading a {
+        font-size: 0.8rem;
+    }
+    .content .heading a i {
+        font-size: 0.9rem;
+    }
+    .content .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .content .project-list .project-item {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .content .project-list .project-item h3 {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .content .project-list .project-item p {
+        font-size: 0.7rem;
+        margin-bottom: 5px;
+    }
+    .pop-up-form {
+        width: 100%;
+        padding: 15px;
+    }
+    .pop-up-form h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    .pop-up-form form input {
+        font-size: 0.7rem;
+        padding: 8px;
+    }
+    .pop-up-form form textarea {
+        font-size: 0.7rem;
+        padding: 8px;
+        height: 60px;
+    }
+    .pop-up-form form button {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+    .project-detail{
+        margin-top: 200px;
+        padding: 15px;
+    }
+    .project-detail .project-head{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .project-detail .project-head h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-head p {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+    .project-detail .project-status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .project-detail .project-status p{
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+    .project-detail .project-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .project-detail .project-info p{
+        font-size: 0.7rem;
+        margin-bottom: 5px;
+    }
+    .project-detail .project-members {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .project-detail .project-members .member{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .project-detail .project-members .member p{
+        font-size: 0.7rem;
+    }
+    /* style footer */
+    footer {
+        position: relative;
+        padding: 10px 0;
+    }
+    footer p {
+        font-size: 0.6rem;
+    }
+
+    
+}
+
