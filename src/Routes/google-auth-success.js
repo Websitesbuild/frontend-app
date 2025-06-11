@@ -8,20 +8,21 @@ function GoogleAuthSuccess() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // This endpoint returns logged in user info if session cookie is valid
-        const response = await axios.get('https://new-backend-3jbn.onrender.com/auth/user', { withCredentials: true });
+        // Always use your deployed backend URL
+        const response = await axios.get(
+          'https://new-backend-3jbn.onrender.com/auth/user',
+          { withCredentials: true }
+        );
 
-        if (response.data.success) {
-          console.log('Google login successful:', response.data.user);
+        if (response.data.success && response.data.user) {
           localStorage.setItem('user', JSON.stringify(response.data.user));
           localStorage.setItem('isLoggedIn', 'true');
           navigate('/homepage');
         } else {
-          console.error('Not authenticated:', response.data.message);
           navigate('/login');
         }
       } catch (error) {
-        console.error('Error fetching user:', error);
+        // Optionally show a message or redirect
         navigate('/login');
       }
     };
@@ -30,8 +31,9 @@ function GoogleAuthSuccess() {
   }, [navigate]);
 
   return (
-    <div>
+    <div style={{ textAlign: 'center', marginTop: '3rem' }}>
       <h2>Logging you in...</h2>
+      <p>If you are not redirected, <a href="/login">click here</a>.</p>
     </div>
   );
 }
