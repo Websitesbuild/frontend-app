@@ -96,14 +96,15 @@ function Login() {
 ];
 
 const receiveMessage = async (event) => {
-  // Only process messages that contain a token and success flag
+  console.log("OAuth message from:", event.origin, event.data);
+
   if (
     !allowedOrigins.includes(event.origin) ||
     !event.data ||
+    event.data.source === "react-devtools-bridge" || // Ignore devtools
     !event.data.success ||
     !event.data.token
   ) {
-    // Ignore unrelated messages (like from React DevTools)
     return;
   }
 
