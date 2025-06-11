@@ -96,7 +96,7 @@ function Login() {
 
 const receiveMessage = async (event) => {
   // DEBUG: See what origin is sending the message
-  // console.log("OAuth message from:", event.origin, event.data);
+  console.log("OAuth message from:", event.origin, event.data);
 
   if (!allowedOrigins.includes(event.origin)) return;
 
