@@ -99,7 +99,10 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "https://new-backend-3jbn.onrender.com/auth/google";
+              window.open(
+    "https://new-backend-3jbn.onrender.com/auth/google",
+    "_self" // or "_blank" if you prefer new tab
+  );
             }}
           >
             <i className="fab fa-google"></i> Google
@@ -108,7 +111,10 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "https://new-backend-3jbn.onrender.com/auth/github";
+              window.open(
+    "https://new-backend-3jbn.onrender.com/auth/github",
+    "_self" // or "_blank" if you prefer new tab
+  );
             }}
           >
             <i className="fab fa-github"></i> GitHub
@@ -117,7 +123,10 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "https://new-backend-3jbn.onrender.com/auth/discord";
+              window.open(
+    "https://new-backend-3jbn.onrender.com/auth/discord",
+    "_self" // or "_blank" if you prefer new tab
+  );
             }}
           >
             <i className="fab fa-discord"></i> Discord
