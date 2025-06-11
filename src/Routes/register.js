@@ -4,29 +4,109 @@ import axios from "axios";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+// Loader spinner component
+function Loader() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: 18,
+        height: 18,
+        border: "2px solid #fff",
+        borderTop: "2px solid #007bff",
+        borderRadius: "50%",
+        marginRight: 8,
+        verticalAlign: "middle",
+        animation: "spin 1s linear infinite",
+      }}
+    />
+  );
+}
+
+// Add keyframes for loader animation (only once)
+if (!document.getElementById("register-spinner-style")) {
+  const style = document.createElement("style");
+  style.id = "register-spinner-style";
+  style.innerHTML = `
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }`;
+  document.head.appendChild(style);
+}
+
 function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setLoading(true);
     const email = event.target.email.value;
     const password = event.target.password.value;
 
-    // Use deployed backend URL
-    const response = await axios.post('https://new-backend-3jbn.onrender.com/register', { email, password });
-    if (response.data.success) {
-      // Optionally, you could auto-login here by requesting /login and storing the JWT
-      // For now, just redirect to login
-      navigate('/login');
-    } else {
-      alert('Error during registration: ' + response.data.message);
+    try {
+      const response = await axios.post('https://new-backend-3jbn.onrender.com/register', { email, password });
+      if (response.data.success) {
+        navigate('/login');
+      } else {
+        alert('Error during registration: ' + response.data.message);
+      }
+    } catch (err) {
+      alert('Error during registration: ' + err.message);
+    } finally {
+      event.target.reset();
+      setLoading(false);
     }
-
-    event.target.reset();
   }
 
   const togglePassword = () => setShowPassword(prev => !prev);
+
+  // Social register with loader
+  const handleOAuthPopup = (provider) => {
+    setLoading(true);
+    const popup = window.open(
+      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+      "_blank",
+      "width=500,height=600"
+    );
+
+    const receiveMessage = async (event) => {
+      if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+
+      if (event.data.success && event.data.token) {
+        localStorage.setItem("token", event.data.token);
+        localStorage.setItem("isLoggedIn", "true");
+        try {
+          const userRes = await axios.get(
+            "https://new-backend-3jbn.onrender.com/auth/user",
+            {
+              headers: {
+                Authorization: `Bearer ${event.data.token}`,
+              },
+            }
+          );
+          if (userRes.data.success) {
+            localStorage.setItem("user", JSON.stringify(userRes.data.user));
+            navigate("/homepage");
+          } else {
+            navigate("/login");
+          }
+        } catch (err) {
+          navigate("/login");
+        } finally {
+          window.removeEventListener("message", receiveMessage);
+          popup?.close();
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener("message", receiveMessage, { once: true });
+  };
 
   return (
     <div className="register-container login-container">
@@ -36,7 +116,14 @@ function Register() {
 
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email address</label>
-            <input type="email" className="form-control" id="email" placeholder="Enter your email" required />
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              placeholder="Enter your email"
+              required
+              disabled={loading}
+            />
           </div>
 
           <div className="mb-3 position-relative">
@@ -47,6 +134,7 @@ function Register() {
               id="password"
               placeholder="Enter your password"
               required
+              disabled={loading}
             />
             <span
               onClick={togglePassword}
@@ -62,7 +150,16 @@ function Register() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary">Register</button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              "Register"
+            )}
+          </button>
 
           <p className="mt-3">
             Already have an account? <a href="/login">Login here</a>
@@ -74,29 +171,56 @@ function Register() {
           <h2>Or register with:</h2>
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/google", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("google")}
+            disabled={loading}
+            style={{ minWidth: 120, marginBottom: 8 }}
           >
-            <i className="fab fa-google"></i> Google
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-google"></i> Google
+              </>
+            )}
           </button>
 
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/github", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("github")}
+            disabled={loading}
+            style={{ minWidth: 120, marginBottom: 8 }}
           >
-            <i className="fab fa-github"></i> GitHub
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-github"></i> GitHub
+              </>
+            )}
           </button>
 
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/discord", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("discord")}
+            disabled={loading}
+            style={{ minWidth: 120 }}
           >
-            <i className="fab fa-discord"></i> Discord
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-discord"></i> Discord
+              </>
+            )}
           </button>
         </div>
       </div>

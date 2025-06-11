@@ -19,8 +19,7 @@ function Detail({ data }) {
   const [activeTab, setActiveTab] = React.useState("details");
   const [paymentHistory, setPaymentHistory] = React.useState([]);
 
-
-// Helper to get JWT token from localStorage
+  // Helper to get JWT token from localStorage
   const getAuthHeader = () => {
     const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -44,8 +43,7 @@ function Detail({ data }) {
     fetchPayments();
   }, [activeTab, memberDetail, memberData, data.project.proj_id]);
 
-
- React.useEffect(() => {
+  React.useEffect(() => {
     async function fetchAvailableMembers() {
       try {
         const res = await axios.get(
@@ -64,7 +62,7 @@ function Detail({ data }) {
   }, [data && data.project ? data.project.proj_id : null, members]);
 
   // Fetch total pieces for all members
-   async function fetchAllMemberPieceTotals(members) {
+  async function fetchAllMemberPieceTotals(members) {
     const totals = {};
     await Promise.all(
       members.map(async (member) => {
@@ -165,8 +163,6 @@ function Detail({ data }) {
     }
   }
 
-
-
   // Always call hooks at the top, then guard clause
   React.useEffect(() => {
     if (!data || !data.project) return;
@@ -223,7 +219,7 @@ function Detail({ data }) {
   }
 
   // Delete project handler
- async function handleDelete() {
+  async function handleDelete() {
     if (!window.confirm("Are you sure you want to delete this project?"))
       return;
     try {
@@ -293,6 +289,7 @@ function Detail({ data }) {
       alert("Error: " + err.message);
     }
   }
+
   async function handleMemberDelete(id) {
     if (
       !window.confirm(
@@ -619,13 +616,7 @@ function Detail({ data }) {
                             // Refresh payment history
                             const payRes = await axios.get(
                               `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`,
-                              payload,
-                              {
-                                headers: {
-                                  "Content-Type": "application/json",
-                                  ...getAuthHeader(),
-                                },
-                              }
+                              { headers: getAuthHeader() }
                             );
                             if (payRes.data.success)
                               setPaymentHistory(payRes.data.payments);
@@ -697,13 +688,7 @@ function Detail({ data }) {
                   // Refresh members list
                   const membersRes = await axios.get(
                     `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
-                    payload,
-                    {
-                      headers: {
-                        "Content-Type": "application/json",
-                        ...getAuthHeader(),
-                      },
-                    }
+                    { headers: getAuthHeader() }
                   );
                   if (membersRes.data.success)
                     setMembers(membersRes.data.members);

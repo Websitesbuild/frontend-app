@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Uncomment if you need navigation
-function Projects({ heading, data,refreshData }) {
+import { useNavigate } from "react-router-dom";
+
+function Projects({ heading, data, refreshData }) {
   const [form, setForm] = useState(false);
   const [blur, setBlur] = useState(false);
-  const navigate = useNavigate(); // Uncomment if you need navigation
-  const [projectData,setProjectData] = useState(null);
+  const navigate = useNavigate();
+  const [projectData, setProjectData] = useState(null);
   const tooltip = `Add New ${heading}`;
 
   function handleClick() {
@@ -22,7 +23,7 @@ function Projects({ heading, data,refreshData }) {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-// Update handleSubmit to include JWT
+  // Submit handler with JWT
   async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -82,8 +83,7 @@ function Projects({ heading, data,refreshData }) {
     }
   }
 
-
-// Update handleCardClick to include JWT
+  // Card click handler with JWT
   async function handleCardClick(cardType, id) {
     console.log("Card type clicked:", cardType);
     console.log("Card ID:", id);
@@ -127,9 +127,8 @@ function Projects({ heading, data,refreshData }) {
     }
   }
 
-// Update fetchFormData to include JWT
-
-const fetchFormData = async () => {
+  // Fetch form data with JWT
+  const fetchFormData = async () => {
     try {
       const res = await axios.get(
         "https://new-backend-3jbn.onrender.com/form/data",
@@ -157,140 +156,140 @@ const fetchFormData = async () => {
       </div>
       <hr />
       <div className="project-list">
-  {(!data || data.length === 0) ? (
-    <div style={{display:"flex", justifyContent:"center", alignContent:"center", width:"100%"}}>
-      <p>No data to display</p>
-    </div>
-  ) : (
-    (heading === "Projects" || heading === "Upcoming Projects"
-  ? data.map((project, index) => (
-      <div
-        className="project-item"
-        key={index}
-        onClick={() => handleCardClick(heading, project.proj_id)}
-      >
-        <h3>{project.proj_name}</h3>
-        <p>{project.proj_desc}</p>
-        <p>Status: {project.status}</p>
-        <p>Price: ₹ {project.price}/- per piece</p>
+        {(!data || data.length === 0) ? (
+          <div style={{ display: "flex", justifyContent: "center", alignContent: "center", width: "100%" }}>
+            <p>No data to display</p>
+          </div>
+        ) : (
+          (heading === "Projects" || heading === "Upcoming Projects"
+            ? data.map((project, index) => (
+              <div
+                className="project-item"
+                key={index}
+                onClick={() => handleCardClick(heading, project.proj_id)}
+              >
+                <h3>{project.proj_name}</h3>
+                <p>{project.proj_desc}</p>
+                <p>Status: {project.status}</p>
+                <p>Price: ₹ {project.price}/- per piece</p>
+              </div>
+            ))
+            : data.map((member, index) => (
+              <div
+                className="project-item"
+                key={index}
+                onClick={() => handleCardClick(heading, member.mem_id)}
+              >
+                <h3>{member.usr_name}</h3>
+                <p>{member.address}</p>
+                <p>Contact: {member.phone}</p>
+              </div>
+            ))
+          )
+        )}
       </div>
-    ))
-  : data.map((member, index) => (
-      <div
-        className="project-item"
-        key={index}
-        onClick={() => handleCardClick(heading, member.mem_id)}
-      >
-        <h3>{member.usr_name}</h3>
-        <p>{member.address}</p>
-        <p>Contact: {member.phone}</p>
-      </div>
-    ))
-)
-  )}
-</div>
       <hr />
       {form && (
-  <div className="pop-up-form">
-    <h3>Add New {(heading === "Projects" || heading === "Upcoming Projects") ? "Project" : "Member"}</h3>
-    <Tooltip title="Close Form" arrow>
-      <button
-        className="close-btn"
-        onClick={handleClick}
-        style={{ cursor: "pointer" }}
-      >
-        X
-      </button>
-    </Tooltip>
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="name">Name:</label>
-        <input type="text" id="name" name="name" required />
-      </div>
-      {(heading === "Projects" || heading === "Upcoming Projects") && (
-        <>
-          <div className="form-group">
-            <label htmlFor="description">Project Description:</label>
-            <textarea
-              id="description"
-              name="description"
-              required
-            ></textarea>
-          </div>
-          <div className="form-group">
-            <label htmlFor="status">Project Status:</label>
-            <select
-              className="form-select mb-4"
-              id="status"
-              name="status"
-              required
-              defaultValue=""
+        <div className="pop-up-form">
+          <h3>Add New {(heading === "Projects" || heading === "Upcoming Projects") ? "Project" : "Member"}</h3>
+          <Tooltip title="Close Form" arrow>
+            <button
+              className="close-btn"
+              onClick={handleClick}
+              style={{ cursor: "pointer" }}
             >
-              <option value="" disabled>
-                -- Select Project Status --
-              </option>
-              <option value="complete">Completed</option>
-              <option value="in-progress">
-                In-Progress
-              </option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="material">Project Material:</label>
-            <textarea
-              id="material"
-              name="material"
-              required
-            ></textarea>
-          </div>
-          <div className="form-group">
-            <label htmlFor="price">Price:</label>
-            <input type="text" id="price" name="price" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="datetime">Date & Time:</label>
-            <input type="datetime-local" id="datetime" name="datetime" required />
-          </div>
-        </>
+              X
+            </button>
+          </Tooltip>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Name:</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            {(heading === "Projects" || heading === "Upcoming Projects") && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="description">Project Description:</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    required
+                  ></textarea>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="status">Project Status:</label>
+                  <select
+                    className="form-select mb-4"
+                    id="status"
+                    name="status"
+                    required
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      -- Select Project Status --
+                    </option>
+                    <option value="complete">Completed</option>
+                    <option value="in-progress">
+                      In-Progress
+                    </option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="material">Project Material:</label>
+                  <textarea
+                    id="material"
+                    name="material"
+                    required
+                  ></textarea>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="price">Price:</label>
+                  <input type="text" id="price" name="price" required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="datetime">Date & Time:</label>
+                  <input type="datetime-local" id="datetime" name="datetime" required />
+                </div>
+              </>
+            )}
+            {heading === "Members" &&
+              (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="address">Address:</label>
+                    <textarea
+                      id="address"
+                      name="address"
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone:</label>
+                    <input type="number" id="phone" name="phone" required />
+                  </div>
+                  <label htmlFor="project">Select Project:</label>
+                  <select
+                    className="form-select mb-4"
+                    id="project"
+                    name="project"
+                    required
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      -- Select Project --
+                    </option>
+                    {projectData && projectData.map((option, idx) => (
+                      <option key={idx} value={option.proj_id}>{option.proj_name}</option>
+                    ))}
+                  </select>
+                </>
+              )
+            }
+            <button type="submit">Add {(heading === "Projects" || heading === "Upcoming Projects") ? "Project" : "Member"}</button>
+          </form>
+        </div>
       )}
-      {heading === "Members" &&
-        (
-          <>
-            <div className="form-group">
-              <label htmlFor="address">Address:</label>
-              <textarea
-                id="address"
-                name="address"
-                required
-              ></textarea>
-            </div>
-            <div className="form-group">
-              <label htmlFor="phone">Phone:</label>
-              <input type="number" id="phone" name="phone" required />
-            </div>
-            <label htmlFor="project">Select Project:</label>
-            <select
-              className="form-select mb-4"
-              id="project"
-              name="project"
-              required
-              defaultValue=""
-            >
-              <option value="" disabled>
-                -- Select Project --
-              </option>
-              {projectData && projectData.map((option, idx) => (
-                <option key={idx} value={option.proj_id}>{option.proj_name}</option>
-              ))}
-            </select>
-          </>
-        )
-      }
-      <button type="submit">Add {(heading === "Projects" || heading === "Upcoming Projects") ? "Project" : "Member"}</button>
-    </form>
-  </div>
-)}
     </div>
   );
 }
