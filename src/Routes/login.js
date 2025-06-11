@@ -77,40 +77,40 @@ function Login() {
   );
 
   const receiveMessage = async (event) => {
-    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+  if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
 
-    window.removeEventListener("message", receiveMessage);
-    popup?.close();
+  window.removeEventListener("message", receiveMessage);
+  popup?.close();
 
-    if (event.data.success && event.data.token) {
-      localStorage.setItem("token", event.data.token);
-      localStorage.setItem("isLoggedIn", "true");
+  if (event.data.success && event.data.token) {
+    localStorage.setItem("token", event.data.token);
+    localStorage.setItem("isLoggedIn", "true");
 
-      try {
-        const userRes = await axios.get(
-          "https://new-backend-3jbn.onrender.com/auth/user",
-          {
-            headers: {
-              Authorization: `Bearer ${event.data.token}`,
-            },
-          }
-        );
-        if (userRes.data.success) {
-          localStorage.setItem("user", JSON.stringify(userRes.data.user));
-          setLoadingBtn(""); // <-- set loadingBtn to "" before navigating
-          navigate("/homepage");
-        } else {
-          setLoadingBtn("");
-          navigate("/login");
+    try {
+      const userRes = await axios.get(
+        "https://new-backend-3jbn.onrender.com/auth/user",
+        {
+          headers: {
+            Authorization: `Bearer ${event.data.token}`,
+          },
         }
-      } catch (err) {
+      );
+      if (userRes.data.success) {
+        localStorage.setItem("user", JSON.stringify(userRes.data.user));
+        setLoadingBtn(""); // <-- set loadingBtn to "" BEFORE navigating
+        navigate("/homepage");
+      } else {
         setLoadingBtn("");
         navigate("/login");
       }
-    } else {
+    } catch (err) {
       setLoadingBtn("");
+      navigate("/login");
     }
-  };
+  } else {
+    setLoadingBtn("");
+  }
+};
 
   window.addEventListener("message", receiveMessage, { once: true });
 };
