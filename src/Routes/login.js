@@ -70,18 +70,29 @@ function Login() {
 
  const handleOAuthPopup = (provider) => {
   setLoadingBtn(provider);
+
   const popup = window.open(
     `https://new-backend-3jbn.onrender.com/auth/${provider}`,
     "_blank",
     "width=500,height=600"
   );
 
+  if (!popup || popup.closed || typeof popup.closed === "undefined") {
+    alert("Popup blocked! Please allow popups for this site.");
+    setLoadingBtn("");
+    return;
+  }
+
+  const timeout = setTimeout(() => {
+    alert("Login timed out. Please try again.");
+    setLoadingBtn("");
+    popup?.close();
+  }, 10000); // 10 seconds timeout for safety
+
   const receiveMessage = async (event) => {
-    console.log("⚡ Message received:", event.origin, event.data); // TEMP
-    // ✅ Use frontend domain here
     if (event.origin !== "https://frontend-app-inky-three.vercel.app") return;
 
-
+    clearTimeout(timeout);
     window.removeEventListener("message", receiveMessage);
     popup?.close();
 
@@ -98,9 +109,10 @@ function Login() {
             },
           }
         );
+
         if (userRes.data.success) {
           localStorage.setItem("user", JSON.stringify(userRes.data.user));
-          setLoadingBtn(""); // ✅ Clear loading state before navigating
+          setLoadingBtn(""); // ✅ Clear button loader
           navigate("/homepage");
         } else {
           setLoadingBtn("");
@@ -117,6 +129,7 @@ function Login() {
 
   window.addEventListener("message", receiveMessage, { once: true });
 };
+
 
 
   return (
