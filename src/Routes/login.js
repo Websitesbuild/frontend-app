@@ -72,25 +72,28 @@ function Login() {
       "width=500,height=600"
     );
 
-    const allowedOrigins = ["https://frontend-app-inky-three.vercel.app"];
+    const allowedOrigins = [
+      "https://frontend-app-inky-three.vercel.app",
+      "https://new-backend-3jbn.onrender.com",
+      "http://localhost:3000",
+      "http://localhost:5000"
+    ];
 
     const receiveMessage = async (event) => {
-      console.log("⚡ OAuth message received:", event.origin, event.data);
-
-      // ✅ Cleanup early
-      // window.removeEventListener("message", receiveMessage);
-      // popup?.close();
-
-      // 🔒 Validate message source
-      if (!allowedOrigins.includes(event.origin) || !event.data || event.data.source === "react-devtools-bridge") {
-        setLoadingBtn("");
+      // Ignore devtools and unrelated messages
+      if (
+        !allowedOrigins.includes(event.origin) ||
+        !event.data ||
+        event.data.source === "react-devtools-bridge" ||
+        event.data.source === "react-devtools-content-script" ||
+        !event.data.success ||
+        !event.data.token
+      ) {
         return;
       }
 
-      if (!event.data.success || !event.data.token) {
-        setLoadingBtn("");
-        return;
-      }
+      window.removeEventListener("message", receiveMessage);
+      popup?.close();
 
       try {
         localStorage.setItem("token", event.data.token);
@@ -114,7 +117,6 @@ function Login() {
           navigate("/login");
         }
       } catch (err) {
-        console.error("❌ Error fetching user after OAuth:", err);
         setLoadingBtn("");
         navigate("/login");
       }
