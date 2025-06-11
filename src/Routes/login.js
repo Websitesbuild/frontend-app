@@ -69,53 +69,51 @@ function Login() {
   };
 
   const handleOAuthPopup = (provider) => {
-    setLoadingBtn(provider);
-    const popup = window.open(
-      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
-      "_blank",
-      "width=500,height=600"
-    );
+  setLoadingBtn(provider);
+  const popup = window.open(
+    `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+    "_blank",
+    "width=500,height=600"
+  );
 
-    const receiveMessage = async (event) => {
-      if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+  const receiveMessage = async (event) => {
+    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
 
-      if (event.data.success && event.data.token) {
-        localStorage.setItem("token", event.data.token);
-        localStorage.setItem("isLoggedIn", "true");
+    window.removeEventListener("message", receiveMessage);
+    popup?.close();
 
-        try {
-          const userRes = await axios.get(
-            "https://new-backend-3jbn.onrender.com/auth/user",
-            {
-              headers: {
-                Authorization: `Bearer ${event.data.token}`,
-              },
-            }
-          );
-          window.removeEventListener("message", receiveMessage);
-          popup?.close();
-          setLoadingBtn("");
-          if (userRes.data.success) {
-            localStorage.setItem("user", JSON.stringify(userRes.data.user));
-            navigate("/homepage");
-          } else {
-            navigate("/login");
+    if (event.data.success && event.data.token) {
+      localStorage.setItem("token", event.data.token);
+      localStorage.setItem("isLoggedIn", "true");
+
+      try {
+        const userRes = await axios.get(
+          "https://new-backend-3jbn.onrender.com/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${event.data.token}`,
+            },
           }
-        } catch (err) {
-          window.removeEventListener("message", receiveMessage);
-          popup?.close();
+        );
+        if (userRes.data.success) {
+          localStorage.setItem("user", JSON.stringify(userRes.data.user));
+          setLoadingBtn(""); // <-- set loadingBtn to "" before navigating
+          navigate("/homepage");
+        } else {
           setLoadingBtn("");
           navigate("/login");
         }
-      } else {
-        window.removeEventListener("message", receiveMessage);
-        popup?.close();
+      } catch (err) {
         setLoadingBtn("");
+        navigate("/login");
       }
-    };
-
-    window.addEventListener("message", receiveMessage, { once: true });
+    } else {
+      setLoadingBtn("");
+    }
   };
+
+  window.addEventListener("message", receiveMessage, { once: true });
+};
 
   return (
     <div className="login-container">
