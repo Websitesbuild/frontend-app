@@ -19,12 +19,20 @@ function Detail({ data }) {
   const [activeTab, setActiveTab] = React.useState("details");
   const [paymentHistory, setPaymentHistory] = React.useState([]);
 
+
+// Helper to get JWT token from localStorage
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   React.useEffect(() => {
     async function fetchPayments() {
       if (activeTab === "payments" && memberDetail && memberData) {
         try {
           const res = await axios.get(
-            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`,
+            { headers: getAuthHeader() }
           );
           if (res.data.success) setPaymentHistory(res.data.payments);
           else setPaymentHistory([]);
@@ -36,11 +44,13 @@ function Detail({ data }) {
     fetchPayments();
   }, [activeTab, memberDetail, memberData, data.project.proj_id]);
 
-  React.useEffect(() => {
+
+ React.useEffect(() => {
     async function fetchAvailableMembers() {
       try {
         const res = await axios.get(
-          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`,
+          { headers: getAuthHeader() }
         );
         if (res.data.success) setAvailableMembers(res.data.members);
         else setAvailableMembers([]);
@@ -54,13 +64,14 @@ function Detail({ data }) {
   }, [data && data.project ? data.project.proj_id : null, members]);
 
   // Fetch total pieces for all members
-  async function fetchAllMemberPieceTotals(members) {
+   async function fetchAllMemberPieceTotals(members) {
     const totals = {};
     await Promise.all(
       members.map(async (member) => {
         try {
           const res = await axios.get(
-            `https://new-backend-3jbn.onrender.com/member/${member.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${member.mem_id}/piece-history?proj_id=${data.project.proj_id}`,
+            { headers: getAuthHeader() }
           );
           if (res.data.success) {
             const total = res.data.history.reduce(
@@ -84,7 +95,8 @@ function Detail({ data }) {
     async function fetchMembersAndTotals() {
       try {
         const res = await axios.get(
-          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+          { headers: getAuthHeader() }
         );
         if (res.data.success) {
           setMembers(res.data.members);
@@ -106,7 +118,8 @@ function Detail({ data }) {
       if (memberDetail && memberData) {
         try {
           const res = await axios.get(
-            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`,
+            { headers: getAuthHeader() }
           );
           if (res.data.success) setPieceHistory(res.data.history);
           else setPieceHistory([]);
@@ -129,22 +142,19 @@ function Detail({ data }) {
       const payload = {
         proj_id: data.project.proj_id,
         piece_count: Number(piece_count),
-        // completed_at will default to now if not provided
       };
       const res = await axios.post(
         `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history`,
         payload,
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
       );
       if (res.data.success) {
         alert("Piece record added!");
-        // Refresh piece history
         const historyRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`,
+          { headers: getAuthHeader() }
         );
         if (historyRes.data.success) setPieceHistory(historyRes.data.history);
-
-        // Refresh totals for all members
         await fetchAllMemberPieceTotals(members);
         setMemberDetail(false);
       } else {
@@ -154,13 +164,17 @@ function Detail({ data }) {
       alert("Error adding piece record: " + err.message);
     }
   }
+
+
+
   // Always call hooks at the top, then guard clause
   React.useEffect(() => {
     if (!data || !data.project) return;
     async function fetchMembers() {
       try {
         const res = await axios.get(
-          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+          { headers: getAuthHeader() }
         );
         if (res.data.success) setMembers(res.data.members);
       } catch (err) {
@@ -190,14 +204,14 @@ function Detail({ data }) {
       const response = await axios.post(
         "https://new-backend-3jbn.onrender.com/add/member",
         payload,
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
       );
       if (response.data.success) {
         alert("Member added successfully!");
         setForm(false);
-        // Refresh members list
         const res = await axios.get(
-          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+          { headers: getAuthHeader() }
         );
         if (res.data.success) setMembers(res.data.members);
       } else {
@@ -209,12 +223,13 @@ function Detail({ data }) {
   }
 
   // Delete project handler
-  async function handleDelete() {
+ async function handleDelete() {
     if (!window.confirm("Are you sure you want to delete this project?"))
       return;
     try {
       const response = await axios.delete(
-        `https://new-backend-3jbn.onrender.com/delete/project/${data.project.proj_id}`
+        `https://new-backend-3jbn.onrender.com/delete/project/${data.project.proj_id}`,
+        { headers: getAuthHeader() }
       );
       if (response.data.success) {
         alert("Project deleted successfully!");
@@ -261,16 +276,15 @@ function Detail({ data }) {
       const res = await axios.post(
         `https://new-backend-3jbn.onrender.com/member/${mem_id}/add-to-project`,
         payload,
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
       );
       if (res.data.success) {
         alert("Member added to project!");
-        // Refresh both lists
         const membersRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+          { headers: getAuthHeader() }
         );
         if (membersRes.data.success) setMembers(membersRes.data.members);
-        // Remove from availableMembers
         setAvailableMembers((prev) => prev.filter((m) => m.mem_id !== mem_id));
       } else {
         alert("Error: " + res.data.message);
@@ -287,20 +301,21 @@ function Detail({ data }) {
     )
       return;
     try {
-      // Remove member from this project only (set proj_id to NULL)
       const res = await axios.put(
-        `https://new-backend-3jbn.onrender.com/member/${id}/remove-from-project`
+        `https://new-backend-3jbn.onrender.com/member/${id}/remove-from-project`,
+        { proj_id: data.project.proj_id },
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
       );
       if (res.data.success) {
         alert("Member removed from project!");
-        // Refresh members list
         const membersRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+          { headers: getAuthHeader() }
         );
         if (membersRes.data.success) setMembers(membersRes.data.members);
-        // Optionally, refresh available members list
         const availRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`,
+          { headers: getAuthHeader() }
         );
         if (availRes.data.success) setAvailableMembers(availRes.data.members);
       } else {
@@ -590,15 +605,27 @@ function Detail({ data }) {
                             remarks: remarks || "",
                           };
                           const res = await axios.post(
-                            `http://localhost:5000/member/${memberData.mem_id}/payments`,
+                            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments`,
                             payload,
-                            { headers: { "Content-Type": "application/json" } }
+                            {
+                              headers: {
+                                "Content-Type": "application/json",
+                                ...getAuthHeader(),
+                              },
+                            }
                           );
                           if (res.data.success) {
                             alert("Payment added!");
                             // Refresh payment history
                             const payRes = await axios.get(
-                              `http://localhost:5000/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`
+                              `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`,
+                              payload,
+                              {
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  ...getAuthHeader(),
+                                },
+                              }
                             );
                             if (payRes.data.success)
                               setPaymentHistory(payRes.data.payments);
@@ -655,16 +682,28 @@ function Detail({ data }) {
               };
               try {
                 const res = await axios.put(
-                  `http://localhost:5000/member/${memberData.mem_id}/edit`,
+                  `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/edit`,
                   payload,
-                  { headers: { "Content-Type": "application/json" } }
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      ...getAuthHeader(),
+                    },
+                  }
                 );
                 if (res.data.success) {
                   alert("Member updated!");
                   setEditPiece(false);
                   // Refresh members list
                   const membersRes = await axios.get(
-                    `http://localhost:5000/project/${data.project.proj_id}/members`
+                    `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`,
+                    payload,
+                    {
+                      headers: {
+                        "Content-Type": "application/json",
+                        ...getAuthHeader(),
+                      },
+                    }
                   );
                   if (membersRes.data.success)
                     setMembers(membersRes.data.members);

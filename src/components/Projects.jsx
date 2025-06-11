@@ -16,111 +16,132 @@ function Projects({ heading, data,refreshData }) {
     fetchFormData();
   }
 
- // In your handleSubmit
-async function handleSubmit(event) {
-  event.preventDefault();
-  const formData = new FormData(event.target);
-  const data = Object.fromEntries(formData.entries());
-  console.log("Form Data: ", data);
+  // Helper to get JWT token from localStorage
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
-  let payload = data;
-  let url = "";
+// Update handleSubmit to include JWT
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    console.log("Form Data: ", data);
 
-  if (heading === "Projects") {
-    payload = {
-      name: data.name,
-      description: data.description,
-      status: data.status,
-      price: String(data.price),
-      material: data.material,
-    };
-    url = "https://new-backend-3jbn.onrender.com/add/project";
-  } else if (heading === "Upcoming Projects") {
-    payload = {
-      name: data.name,
-      description: data.description,
-      status: data.status,
-      price: String(data.price),
-      material: data.material,
-    };
-    url = "https://new-backend-3jbn.onrender.com/add/upcoming-project";
-  } else if (heading === "Members") {
-    payload = {
-      usr_name: data.name,
-      address: data.address,
-      phone: data.phone,
-      proj_id: data.project,
-    };
-    url = "https://new-backend-3jbn.onrender.com/add/member";
-  }
+    let payload = data;
+    let url = "";
 
-  try {
-    const response = await axios.post(url, payload, {
-      headers: { "Content-Type": "application/json" }
-    });
-
-    // Inside handleSubmit, after a successful add:
-if (response.data.success) {
-  console.log("Item added successfully:", response.data.project || response.data.member);
-  if (typeof refreshData === "function") refreshData(); // <--- Add this line
-  setTimeout(() => navigate("/homepage"), 1000);
-} else {
-      console.error("Error adding item:", response.data.message);
+    if (heading === "Projects") {
+      payload = {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        price: String(data.price),
+        material: data.material,
+      };
+      url = "https://new-backend-3jbn.onrender.com/add/project";
+    } else if (heading === "Upcoming Projects") {
+      payload = {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        price: String(data.price),
+        material: data.material,
+      };
+      url = "https://new-backend-3jbn.onrender.com/add/upcoming-project";
+    } else if (heading === "Members") {
+      payload = {
+        usr_name: data.name,
+        address: data.address,
+        phone: data.phone,
+        proj_id: data.project,
+      };
+      url = "https://new-backend-3jbn.onrender.com/add/member";
     }
-    event.target.reset();
-    setForm(false);
-  } catch (error) {
-    console.error("Error submitting form:", error);
-  }
-}
 
+    try {
+      const response = await axios.post(url, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        }
+      });
 
-  async function handleCardClick(cardType, id) {
-  console.log("Card type clicked:", cardType);
-  console.log("Card ID:", id);
-  let response;
-  try {
-    switch (cardType) {
-      case "Projects":
-        response = await axios.get(`https://new-backend-3jbn.onrender.com/project/${id}`);
-        break;
-      case "Members":
-        response = await axios.get(`https://new-backend-3jbn.onrender.com/member/${id}`);
-        break;
-      case "Upcoming Projects":
-        response = await axios.get(`https://new-backend-3jbn.onrender.com/upcoming/${id}`);
-        break;
-      default:
-        console.error("Unknown card type:", cardType);
-        return;
-    }
-    if (response && response.data) {
-      console.log("Card data:", response.data);
-      if (cardType === "Members" && response.data.member) {
-        // Route to member detail page with member data
-        navigate("/member", { state: { data: response.data.member } });
+      if (response.data.success) {
+        console.log("Item added successfully:", response.data.project || response.data.member);
+        if (typeof refreshData === "function") refreshData();
+        setTimeout(() => navigate("/homepage"), 1000);
       } else {
-        // Default: route to card page
-        navigate("/card", { state: { data: response.data } });
+        console.error("Error adding item:", response.data.message);
       }
-    } else {
-      console.error("No data found for the card");
+      event.target.reset();
+      setForm(false);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-  } catch (error) {
-    console.error("Error fetching card data:", error);
   }
-}
 
-const fetchFormData = async()=>{
-    try{
-    const res = await axios.get("https://new-backend-3jbn.onrender.com/form/data");
-    setProjectData(res.data.data);
-    console.log(res.data.data);
+
+// Update handleCardClick to include JWT
+  async function handleCardClick(cardType, id) {
+    console.log("Card type clicked:", cardType);
+    console.log("Card ID:", id);
+    let response;
+    try {
+      switch (cardType) {
+        case "Projects":
+          response = await axios.get(
+            `https://new-backend-3jbn.onrender.com/project/${id}`,
+            { headers: getAuthHeader() }
+          );
+          break;
+        case "Members":
+          response = await axios.get(
+            `https://new-backend-3jbn.onrender.com/member/${id}`,
+            { headers: getAuthHeader() }
+          );
+          break;
+        case "Upcoming Projects":
+          response = await axios.get(
+            `https://new-backend-3jbn.onrender.com/upcoming/${id}`,
+            { headers: getAuthHeader() }
+          );
+          break;
+        default:
+          console.error("Unknown card type:", cardType);
+          return;
+      }
+      if (response && response.data) {
+        console.log("Card data:", response.data);
+        if (cardType === "Members" && response.data.member) {
+          navigate("/member", { state: { data: response.data.member } });
+        } else {
+          navigate("/card", { state: { data: response.data } });
+        }
+      } else {
+        console.error("No data found for the card");
+      }
+    } catch (error) {
+      console.error("Error fetching card data:", error);
+    }
   }
-  catch (error) {
-    setProjectData([]);
-    console.error("Failed to fetch members or projects:", error);
-  }}
+
+// Update fetchFormData to include JWT
+
+const fetchFormData = async () => {
+    try {
+      const res = await axios.get(
+        "https://new-backend-3jbn.onrender.com/form/data",
+        { headers: getAuthHeader() }
+      );
+      setProjectData(res.data.data);
+      console.log(res.data.data);
+    } catch (error) {
+      setProjectData([]);
+      console.error("Failed to fetch members or projects:", error);
+    }
+  };
 
   return (
     <div className="projects-container">

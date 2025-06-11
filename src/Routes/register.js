@@ -13,12 +13,14 @@ function Register() {
     const email = event.target.email.value;
     const password = event.target.password.value;
 
-    const response = await axios.post('http://localhost:5000/register', { email, password });
+    // Use deployed backend URL
+    const response = await axios.post('https://new-backend-3jbn.onrender.com/register', { email, password });
     if (response.data.success) {
-      console.log('Registration successful:', response.data.message);
+      // Optionally, you could auto-login here by requesting /login and storing the JWT
+      // For now, just redirect to login
       navigate('/login');
     } else {
-      console.error('Error during registration:', response.data.message);
+      alert('Error during registration: ' + response.data.message);
     }
 
     event.target.reset();
@@ -34,7 +36,7 @@ function Register() {
 
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email address</label>
-            <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+            <input type="email" className="form-control" id="email" placeholder="Enter your email" required />
           </div>
 
           <div className="mb-3 position-relative">
@@ -44,6 +46,7 @@ function Register() {
               className="form-control"
               id="password"
               placeholder="Enter your password"
+              required
             />
             <span
               onClick={togglePassword}
@@ -72,7 +75,7 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "http://localhost:5000/auth/google";
+              window.open("https://new-backend-3jbn.onrender.com/auth/google", "_blank", "width=500,height=600");
             }}
           >
             <i className="fab fa-google"></i> Google
@@ -81,7 +84,7 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "http://localhost:5000/auth/github";
+              window.open("https://new-backend-3jbn.onrender.com/auth/github", "_blank", "width=500,height=600");
             }}
           >
             <i className="fab fa-github"></i> GitHub
@@ -90,7 +93,7 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => {
-              window.location.href = "http://localhost:5000/auth/discord";
+              window.open("https://new-backend-3jbn.onrender.com/auth/discord", "_blank", "width=500,height=600");
             }}
           >
             <i className="fab fa-discord"></i> Discord

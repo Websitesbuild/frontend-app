@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"; // import the eye icon from MUI
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // state for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -15,13 +15,13 @@ function Login() {
     try {
       const response = await axios.post(
         "https://new-backend-3jbn.onrender.com/login",
-        { email, password },
-        { withCredentials: true }
+        { email, password }
       );
 
-      if (response.data.success) {
+      if (response.data.success && response.data.token) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("token", response.data.token); // Store JWT
         navigate("/homepage");
       } else {
         alert(response.data.message);
@@ -35,42 +35,49 @@ function Login() {
   };
 
   const handleOAuthPopup = (provider) => {
-  const popup = window.open(
-    `https://new-backend-3jbn.onrender.com/auth/${provider}`,
-    "_blank",
-    "width=500,height=600"
-  );
+    const popup = window.open(
+      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+      "_blank",
+      "width=500,height=600"
+    );
 
-  const receiveMessage = async (event) => {
-    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+    const receiveMessage = async (event) => {
+      if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
 
-    if (event.data.success) {
-      try {
-        const response = await axios.get("https://new-backend-3jbn.onrender.com/auth/user", {
-          withCredentials: true
-        });
+      if (event.data.success && event.data.token) {
+        // Store JWT and user info (optional: fetch user with token)
+        localStorage.setItem("token", event.data.token);
+        localStorage.setItem("isLoggedIn", "true");
 
-        if (response.data.success) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          localStorage.setItem("isLoggedIn", "true");
-          navigate("/homepage");
-        } else {
+        // Optionally fetch user info using the token
+        try {
+          const userRes = await axios.get(
+            "https://new-backend-3jbn.onrender.com/auth/user",
+            {
+              headers: {
+                Authorization: `Bearer ${event.data.token}`,
+              },
+            }
+          );
+          if (userRes.data.success) {
+            localStorage.setItem("user", JSON.stringify(userRes.data.user));
+            navigate("/homepage");
+          } else {
+            navigate("/login");
+          }
+        } catch (err) {
           navigate("/login");
+        } finally {
+          window.removeEventListener("message", receiveMessage);
+          popup?.close();
         }
-      } catch (err) {
-        navigate("/login");
-      } finally {
-        window.removeEventListener("message", receiveMessage);
-        popup?.close();
       }
-    }
+    };
+
+    window.addEventListener("message", receiveMessage, { once: true });
   };
 
-  window.addEventListener("message", receiveMessage, { once: true });
-};
-
-
-
+  // ...rest of your component (form, buttons, etc.) remains unchanged...
 
   return (
     <div className="login-container">
@@ -154,6 +161,7 @@ function Login() {
       </div>
     </div>
   );
+
 }
 
 export default Login;

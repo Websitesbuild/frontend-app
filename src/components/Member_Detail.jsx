@@ -6,6 +6,10 @@ import AddIcon from "@mui/icons-material/Add";
 import Tooltip from "@mui/material/Tooltip";
 import { useNavigate } from "react-router-dom";
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 function MemberDetail({ memberId }) {
   const [member, setMember] = React.useState(null);
@@ -14,81 +18,8 @@ function MemberDetail({ memberId }) {
   const [pieceTotals, setPieceTotals] = React.useState({});
   const [paymentTotals, setPaymentTotals] = React.useState({});
   const [editProject, setEditProject] = React.useState(null);
-    const [refreshKey, setRefreshKey] = React.useState(0);
-      const navigate = useNavigate();
-
-
-
-
-
-  // Fetch piece totals and payment totals for all projects
-React.useEffect(() => {
-  async function fetchTotals() {
-    const pieceTotalsObj = {};
-    const paymentTotalsObj = {};
-    await Promise.all(
-      enrolledProjects.map(async (proj) => {
-        // Piece total
-        const pieceRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${proj.proj_id}`
-        );
-        pieceTotalsObj[proj.proj_id] = pieceRes.data.success
-          ? pieceRes.data.history.reduce(
-              (sum, entry) => sum + Number(entry.piece_count),
-              0
-            )
-          : 0;
-        // Payment total
-        const payRes = await axios.get(
-          `https://new-backend-3jbn.onrender.com/member/${memberId}/payments?proj_id=${proj.proj_id}`
-        );
-        paymentTotalsObj[proj.proj_id] = payRes.data.success
-          ? payRes.data.payments.reduce(
-              (sum, entry) => sum + Number(entry.amount),
-              0
-            )
-          : 0;
-      })
-    );
-    setPieceTotals(pieceTotalsObj);
-    setPaymentTotals(paymentTotalsObj);
-  }
-  if (enrolledProjects.length > 0) fetchTotals();
-}, [enrolledProjects, memberId, refreshKey]); // <-- add refreshKey here
-
-
-  const refreshTotals = () => setRefreshKey((k) => k + 1);
-
-  // Fetch member details
-  React.useEffect(() => {
-    async function fetchMember() {
-      const res = await axios.get(`https://new-backend-3jbn.onrender.com/member/${memberId}`);
-      if (res.data.success) setMember(res.data.member);
-    }
-    fetchMember();
-  }, [memberId]);
-
-  // Fetch projects the member is enrolled in
-  React.useEffect(() => {
-    async function fetchEnrolled() {
-      const res = await axios.get(
-        `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`
-      );
-      if (res.data.success) setEnrolledProjects(res.data.projects);
-    }
-    fetchEnrolled();
-  }, [memberId]);
-
-  // Fetch available projects for this member
-  React.useEffect(() => {
-    async function fetchAvailable() {
-      const res = await axios.get(
-        `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`
-      );
-      if (res.data.success) setAvailableProjects(res.data.projects);
-    }
-    fetchAvailable();
-  }, [memberId]);
+  const [refreshKey, setRefreshKey] = React.useState(0);
+  const navigate = useNavigate();
 
   // Fetch piece totals and payment totals for all projects
   React.useEffect(() => {
@@ -99,7 +30,8 @@ React.useEffect(() => {
         enrolledProjects.map(async (proj) => {
           // Piece total
           const pieceRes = await axios.get(
-            `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${proj.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${proj.proj_id}`,
+            { headers: getAuthHeader() }
           );
           pieceTotalsObj[proj.proj_id] = pieceRes.data.success
             ? pieceRes.data.history.reduce(
@@ -109,7 +41,8 @@ React.useEffect(() => {
             : 0;
           // Payment total
           const payRes = await axios.get(
-            `https://new-backend-3jbn.onrender.com/member/${memberId}/payments?proj_id=${proj.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberId}/payments?proj_id=${proj.proj_id}`,
+            { headers: getAuthHeader() }
           );
           paymentTotalsObj[proj.proj_id] = payRes.data.success
             ? payRes.data.payments.reduce(
@@ -123,7 +56,45 @@ React.useEffect(() => {
       setPaymentTotals(paymentTotalsObj);
     }
     if (enrolledProjects.length > 0) fetchTotals();
-  }, [enrolledProjects, memberId]);
+  }, [enrolledProjects, memberId, refreshKey]);
+
+  const refreshTotals = () => setRefreshKey((k) => k + 1);
+
+  // Fetch member details
+  React.useEffect(() => {
+    async function fetchMember() {
+      const res = await axios.get(
+        `https://new-backend-3jbn.onrender.com/member/${memberId}`,
+        { headers: getAuthHeader() }
+      );
+      if (res.data.success) setMember(res.data.member);
+    }
+    fetchMember();
+  }, [memberId]);
+
+  // Fetch projects the member is enrolled in
+  React.useEffect(() => {
+    async function fetchEnrolled() {
+      const res = await axios.get(
+        `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`,
+        { headers: getAuthHeader() }
+      );
+      if (res.data.success) setEnrolledProjects(res.data.projects);
+    }
+    fetchEnrolled();
+  }, [memberId]);
+
+  // Fetch available projects for this member
+  React.useEffect(() => {
+    async function fetchAvailable() {
+      const res = await axios.get(
+        `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`,
+        { headers: getAuthHeader() }
+      );
+      if (res.data.success) setAvailableProjects(res.data.projects);
+    }
+    fetchAvailable();
+  }, [memberId]);
 
   // Calculate total earning and balance left
   const totalEarning = enrolledProjects.reduce(
@@ -140,27 +111,32 @@ React.useEffect(() => {
 
   // Remove from project
   async function handleRemoveFromProject(proj_id) {
-  if (!window.confirm("Remove member from this project?")) return;
-  await axios.put(
-    `https://new-backend-3jbn.onrender.com/member/${memberId}/remove-from-project`,
-    { proj_id }
-  );
-  // Refresh lists
-  const res = await axios.get(
-    `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`
-  );
-  if (res.data.success) setEnrolledProjects(res.data.projects);
-  const availRes = await axios.get(
-    `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`
-  );
-  if (availRes.data.success) setAvailableProjects(availRes.data.projects);
-}
+    if (!window.confirm("Remove member from this project?")) return;
+    await axios.put(
+      `https://new-backend-3jbn.onrender.com/member/${memberId}/remove-from-project`,
+      { proj_id },
+      { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
+    );
+    // Refresh lists
+    const res = await axios.get(
+      `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`,
+      { headers: getAuthHeader() }
+    );
+    if (res.data.success) setEnrolledProjects(res.data.projects);
+    const availRes = await axios.get(
+      `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`,
+      { headers: getAuthHeader() }
+    );
+    if (availRes.data.success) setAvailableProjects(availRes.data.projects);
+  }
 
-
-async function handleDelete() {
+  async function handleDelete() {
     if (!window.confirm("Are you sure you want to delete this member and all related data?")) return;
     try {
-      await axios.delete(`https://new-backend-3jbn.onrender.com/member/${memberId}`);
+      await axios.delete(
+        `https://new-backend-3jbn.onrender.com/member/${memberId}`,
+        { headers: getAuthHeader() }
+      );
       navigate("/homepage");
     } catch (err) {
       alert("Error deleting member: " + err.message);
@@ -171,15 +147,18 @@ async function handleDelete() {
   async function handleAddToProject(proj_id) {
     await axios.post(
       `https://new-backend-3jbn.onrender.com/member/${memberId}/add-to-project`,
-      { proj_id }
+      { proj_id },
+      { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
     );
     // Refresh lists
     const res = await axios.get(
-      `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`
+      `https://new-backend-3jbn.onrender.com/member/${memberId}/projects`,
+      { headers: getAuthHeader() }
     );
     if (res.data.success) setEnrolledProjects(res.data.projects);
     const availRes = await axios.get(
-      `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`
+      `https://new-backend-3jbn.onrender.com/projects/available?mem_id=${memberId}`,
+      { headers: getAuthHeader() }
     );
     if (availRes.data.success) setAvailableProjects(availRes.data.projects);
   }
@@ -224,7 +203,6 @@ async function handleDelete() {
                     <Tooltip title="Edit Project Detail" arrow>
                 <EditIcon
                   style={{ cursor: "pointer" }}
-                  
                 />
               </Tooltip>
               <Tooltip title="Remove this Project" arrow>
@@ -234,7 +212,6 @@ async function handleDelete() {
                 />
               </Tooltip>
                 </div>
-              
             </div>
           ))
         )}
@@ -274,20 +251,14 @@ async function handleDelete() {
       project={editProject}
       memberId={memberId}
       onClose={() => setEditProject(null)}
-      onDataChange={refreshTotals} // <-- pass callback
+      onDataChange={refreshTotals}
     />
   )}
-      
-      {/* Optionally, add edit project popup/modal here */}
     </div>
   );
 }
 
-
 export default MemberDetail;
-
-
-
 
 // Place this component at the bottom of your file:
 function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
@@ -300,7 +271,8 @@ function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
   React.useEffect(() => {
     async function fetchPieces() {
       const res = await axios.get(
-        `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${project.proj_id}`
+        `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${project.proj_id}`,
+        { headers: getAuthHeader() }
       );
       setPieceHistory(res.data.success ? res.data.history : []);
     }
@@ -311,65 +283,13 @@ function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
   React.useEffect(() => {
     async function fetchPayments() {
       const res = await axios.get(
-        `https://new-backend-3jbn.onrender.com/member/${memberId}/payments?proj_id=${project.proj_id}`
+        `https://new-backend-3jbn.onrender.com/member/${memberId}/payments?proj_id=${project.proj_id}`,
+        { headers: getAuthHeader() }
       );
       setPaymentHistory(res.data.success ? res.data.payments : []);
     }
     if (activeTab === "payments" || activeTab === "details") fetchPayments();
   }, [activeTab, memberId, project.proj_id, refresh]);
-
-
-async function handleAddMorePiece() {
-    const count = prompt("Enter number of pieces to add:");
-    if (!count || isNaN(count) || Number(count) <= 0) {
-      alert("Please enter a valid number.");
-      return;
-    }
-    try {
-      await axios.post(
-        `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history`,
-        { proj_id: project.proj_id, piece_count: Number(count) },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      setRefresh((r) => !r);
-      if (onDataChange) onDataChange(); // <-- refresh parent totals
-    } catch (err) {
-      alert("Error adding piece: " + err.message);
-    }
-  }
-
-async function handleAddPayment() {
-    const amount = prompt("Enter payment amount:");
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      alert("Please enter a valid amount.");
-      return;
-    }
-    const remarks = prompt("Remarks (optional):");
-    try {
-      await axios.post(
-        `https://new-backend-3jbn.onrender.com/member/${memberId}/payments`,
-        { proj_id: project.proj_id, amount: Number(amount), remarks: remarks || "" },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      setRefresh((r) => !r);
-      if (onDataChange) onDataChange(); // <-- refresh parent totals
-    } catch (err) {
-      alert("Error adding payment: " + err.message);
-    }
-  }
-
-
-  // Helper
-  function formatIndianTime(date) {
-    return new Date(date).toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  }
 
   // Add more pieces
   async function handleAddMorePiece() {
@@ -380,11 +300,12 @@ async function handleAddPayment() {
     }
     try {
       await axios.post(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history`,
-  { proj_id: project.proj_id, piece_count: Number(count) },
-  { headers: { "Content-Type": "application/json" } }
-);
+        `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history`,
+        { proj_id: project.proj_id, piece_count: Number(count) },
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
+      );
       setRefresh((r) => !r);
+      if (onDataChange) onDataChange();
     } catch (err) {
       alert("Error adding piece: " + err.message);
     }
@@ -402,12 +323,25 @@ async function handleAddPayment() {
       await axios.post(
         `https://new-backend-3jbn.onrender.com/member/${memberId}/payments`,
         { proj_id: project.proj_id, amount: Number(amount), remarks: remarks || "" },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
       );
       setRefresh((r) => !r);
+      if (onDataChange) onDataChange();
     } catch (err) {
       alert("Error adding payment: " + err.message);
     }
+  }
+
+  // Helper
+  function formatIndianTime(date) {
+    return new Date(date).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   }
 
   // Totals
@@ -419,17 +353,17 @@ async function handleAddPayment() {
     <div className="pop-up-form">
       <h3>Project Details</h3>
       <Tooltip title="Close" arrow>
-  <button
-    className="close-btn"
-    onClick={() => {
-      if (onDataChange) onDataChange(); // Always refresh parent on close
-      onClose();
-    }}
-    style={{ cursor: "pointer" }}
-  >
-    X
-  </button>
-</Tooltip>
+        <button
+          className="close-btn"
+          onClick={() => {
+            if (onDataChange) onDataChange();
+            onClose();
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          X
+        </button>
+      </Tooltip>
       <div className="tabs">
         <button
           onClick={() => setActiveTab("details")}
@@ -525,6 +459,3 @@ async function handleAddPayment() {
     </div>
   );
 }
-
-
-

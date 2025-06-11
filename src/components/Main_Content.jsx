@@ -1,22 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Projects from "./Projects";
-import {upcoming} from "../data"; // Assuming you have a data file
+import { upcoming } from "../data";
 import axios from "axios";
-import { useEffect } from "react";
-import { useState } from "react";
 
+// Helper to get JWT token from localStorage
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 function MainContent() {
   const [members, setMembers] = useState(null);
-  const [projects,setProjects] = useState(null);
+  const [projects, setProjects] = useState(null);
 
   const fetchData = async () => {
     try {
-      const memberRes = await axios.get("https://new-backend-3jbn.onrender.com/allMember");
-      const projectRes = await axios.get("https://new-backend-3jbn.onrender.com/allProjects");
-      // The API returns { success: true, members: [...] } and { success: true, projects: [...] }
-      // console.log("Members", memberRes.data.members);
-      // console.log("Projects", projectRes.data.projects);
+      const memberRes = await axios.get(
+        "https://new-backend-3jbn.onrender.com/allMember",
+        { headers: getAuthHeader() }
+      );
+      const projectRes = await axios.get(
+        "https://new-backend-3jbn.onrender.com/allProjects",
+        { headers: getAuthHeader() }
+      );
       setMembers(memberRes.data.members);
       setProjects(projectRes.data.projects);
     } catch (error) {
@@ -26,24 +32,26 @@ function MainContent() {
     }
   };
 
-useEffect(() => {
-  
-  fetchData();
-}, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="container content">
-      <Projects 
-      heading="Projects"
-      data = {projects}
-      refreshData={fetchData}/>
-      <Projects 
-      heading = "Members"
-      data = {members}
-      refreshData={fetchData}/>
-      <Projects 
-      heading = "Upcoming Projects"
-      data = {upcoming}/>
+      <Projects
+        heading="Projects"
+        data={projects}
+        refreshData={fetchData}
+      />
+      <Projects
+        heading="Members"
+        data={members}
+        refreshData={fetchData}
+      />
+      <Projects
+        heading="Upcoming Projects"
+        data={upcoming}
+      />
     </div>
   );
 }
