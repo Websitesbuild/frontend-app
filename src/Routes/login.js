@@ -87,7 +87,7 @@ function Login() {
     alert("Login timed out. Please try again.");
     setLoadingBtn("");
     popup?.close();
-  }, 10000); // 10 seconds timeout for safety
+  }, 100000); // 10 seconds timeout for safety
 
   const receiveMessage = async (event) => {
     if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
