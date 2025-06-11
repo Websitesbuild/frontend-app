@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
-// Loader spinner component
 function Loader() {
   return (
     <span
@@ -22,15 +21,14 @@ function Loader() {
   );
 }
 
-// Add keyframes for loader animation (only once)
 if (!document.getElementById("login-spinner-style")) {
   const style = document.createElement("style");
   style.id = "login-spinner-style";
   style.innerHTML = `
-  @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-  }`;
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }`;
   document.head.appendChild(style);
 }
 
@@ -38,8 +36,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loadingBtn, setLoadingBtn] = useState(""); // "", "login", "google", "github", "discord"
-
+  const [loadingBtn, setLoadingBtn] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -50,11 +47,10 @@ function Login() {
         "https://new-backend-3jbn.onrender.com/login",
         { email, password }
       );
-
       if (response.data.success && response.data.token) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("token", response.data.token); // Store JWT
+        localStorage.setItem("token", response.data.token);
         navigate("/homepage");
       } else {
         alert(response.data.message);
@@ -68,84 +64,64 @@ function Login() {
     }
   };
 
- const handleOAuthPopup = (provider) => {
-  setLoadingBtn(provider);
-
-  const popup = window.open(
-    `https://new-backend-3jbn.onrender.com/auth/${provider}`,
-    "_blank",
-    "width=500,height=600"
-  );
-
-  if (!popup || popup.closed || typeof popup.closed === "undefined") {
-    alert("Popup blocked! Please allow popups for this site.");
-    setLoadingBtn("");
-    return;
-  }
-
-  const timeout = setTimeout(() => {
-    alert("Login timed out. Please try again.");
-    setLoadingBtn("");
-    popup?.close();
-  }, 100000); // 10 seconds timeout for safety
-
- const allowedOrigins = [
-  "https://new-backend-3jbn.onrender.com",
-  "http://localhost:5000",
-  "https://frontend-app-inky-three.vercel.app", // <-- add this!
-];
-
-const receiveMessage = async (event) => {
-  console.log("OAuth message from:", event.origin, event.data);
-
-  if (
-    !allowedOrigins.includes(event.origin) ||
-    !event.data ||
-    event.data.source === "react-devtools-bridge" || // Ignore devtools
-    !event.data.success ||
-    !event.data.token
-  ) {
-    return;
-  }
-
-  clearTimeout(timeout);
-  window.removeEventListener("message", receiveMessage);
-  popup?.close();
-
-  localStorage.setItem("token", event.data.token);
-  localStorage.setItem("isLoggedIn", "true");
-
-  try {
-    const userRes = await axios.get(
-      "https://new-backend-3jbn.onrender.com/auth/user",
-      {
-        headers: {
-          Authorization: `Bearer ${event.data.token}`,
-        },
-      }
+  const handleOAuthPopup = (provider) => {
+    setLoadingBtn(provider);
+    const popup = window.open(
+      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+      "_blank",
+      "width=500,height=600"
     );
 
-    console.log(userRes);
+    const allowedOrigins = ["https://frontend-app-inky-three.vercel.app"];
 
-    if (userRes.data.success) {
-      localStorage.setItem("user", JSON.stringify(userRes.data.user));
-      console.log("Navigating")
-      setLoadingBtn("");
-      navigate("/homepage");
-    } else {
-      setLoadingBtn("");
-      navigate("/login");
-    }
-  } catch (err) {
-    setLoadingBtn("");
-    navigate("/login");
-  }
-};
+    const receiveMessage = async (event) => {
+      console.log("⚡ OAuth message received:", event.origin, event.data);
 
-  window.addEventListener("message", receiveMessage, { once: true });
-};
+      // ✅ Cleanup early
+      window.removeEventListener("message", receiveMessage);
+      popup?.close();
 
+      // 🔒 Validate message source
+      if (!allowedOrigins.includes(event.origin) || !event.data || event.data.source === "react-devtools-bridge") {
+        setLoadingBtn("");
+        return;
+      }
 
+      if (!event.data.success || !event.data.token) {
+        setLoadingBtn("");
+        return;
+      }
+
+      try {
+        localStorage.setItem("token", event.data.token);
+        localStorage.setItem("isLoggedIn", "true");
+
+        const userRes = await axios.get(
+          "https://new-backend-3jbn.onrender.com/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${event.data.token}`,
+            },
+          }
+        );
+
+        if (userRes.data.success) {
+          localStorage.setItem("user", JSON.stringify(userRes.data.user));
+          setLoadingBtn("");
+          navigate("/homepage");
+        } else {
+          setLoadingBtn("");
+          navigate("/login");
+        }
+      } catch (err) {
+        console.error("❌ Error fetching user after OAuth:", err);
+        setLoadingBtn("");
+        navigate("/login");
+      }
+    };
+
+    window.addEventListener("message", receiveMessage, { once: true });
+  };
 
   return (
     <div className="login-container">
@@ -189,7 +165,7 @@ const receiveMessage = async (event) => {
                 right: 10,
                 top: 38,
                 cursor: "pointer",
-                color: "#888"
+                color: "#888",
               }}
               aria-label={showPassword ? "Hide password" : "Show password"}
               title={showPassword ? "Hide password" : "Show password"}
