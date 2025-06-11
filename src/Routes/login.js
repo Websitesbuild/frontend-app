@@ -74,60 +74,61 @@ if (!document.getElementById("login-spinner-style")) {
 
 
   const handleOAuthPopup = (provider) => {
-    const popup = window.open(
-      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
-      "_blank",
-      "width=500,height=600"
-    );
+  setLoadingBtn(provider);
+  const popup = window.open(
+    `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+    "_blank",
+    "width=500,height=600"
+  );
 
-    const allowedOrigins = [
-      "https://frontend-app-inky-three.vercel.app",
-      "https://new-backend-3jbn.onrender.com",
-      "http://localhost:3000",
-      "http://localhost:5000"
-    ];
+  const allowedOrigins = [
+    "https://frontend-app-inky-three.vercel.app",
+    "https://new-backend-3jbn.onrender.com",
+    "http://localhost:3000",
+    "http://localhost:5000"
+  ];
 
-    const receiveMessage = async (event) => {
-      if (
-        !allowedOrigins.includes(event.origin) ||
-        !event.data ||
-        event.data.source === "react-devtools-bridge" ||
-        event.data.source === "react-devtools-content-script" ||
-        !event.data.success ||
-        !event.data.token
-      ) {
-        return;
-      }
+  const receiveMessage = async (event) => {
+    if (
+      !allowedOrigins.includes(event.origin) ||
+      !event.data ||
+      event.data.source?.includes("react-devtools") ||
+      !event.data.success ||
+      !event.data.token
+    ) {
+      return;
+    }
 
-      window.removeEventListener("message", receiveMessage);
-      popup?.close();
+    window.removeEventListener("message", receiveMessage);
+    popup?.close();
 
-      try {
-        localStorage.setItem("token", event.data.token);
-        localStorage.setItem("isLoggedIn", "true");
+    try {
+      localStorage.setItem("token", event.data.token);
+      localStorage.setItem("isLoggedIn", "true");
 
-        const response = await axios.get(
-          "https://new-backend-3jbn.onrender.com/auth/user",
-          {
-            headers: {
-              Authorization: `Bearer ${event.data.token}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          navigate("/homepage");
-        } else {
-          navigate("/login");
+      const response = await axios.get(
+        "https://new-backend-3jbn.onrender.com/auth/user",
+        {
+          headers: { Authorization: `Bearer ${event.data.token}` },
         }
-      } catch (err) {
+      );
+
+      if (response.data.success) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        navigate("/homepage");
+      } else {
         navigate("/login");
       }
-    };
-
-    window.addEventListener("message", receiveMessage, { once: true });
+    } catch (err) {
+      navigate("/login");
+    } finally {
+      setLoadingBtn("");
+    }
   };
+
+  window.addEventListener("message", receiveMessage, { once: true });
+};
+
 
   return (
     <div className="login-container">
@@ -203,25 +204,55 @@ if (!document.getElementById("login-spinner-style")) {
           <h2>Or login with:</h2>
 
           <button
-            className="btn btn-danger"
-            onClick={() => handleOAuthPopup("google")}
-          >
-            <i className="fab fa-google"></i> Google
-          </button>
+  className="btn btn-danger"
+  onClick={() => handleOAuthPopup("google")}
+  disabled={!!loadingBtn}
+>
+  {loadingBtn === "google" ? (
+    <>
+      <Loader /> Please wait...
+    </>
+  ) : (
+    <>
+      <i className="fab fa-google"></i> Google
+    </>
+  )}
+</button>
+
 
           <button
-            className="btn btn-danger"
-            onClick={() => handleOAuthPopup("github")}
-          >
-            <i className="fab fa-github"></i> GitHub
-          </button>
+  className="btn btn-danger"
+  onClick={() => handleOAuthPopup("github")}
+  disabled={!!loadingBtn}
+>
+  {loadingBtn === "google" ? (
+    <>
+      <Loader /> Please wait...
+    </>
+  ) : (
+    <>
+      <i className="fab fa-github"></i> GitHub
+    </>
+  )}
+</button>
+
 
           <button
-            className="btn btn-danger"
-            onClick={() => handleOAuthPopup("discord")}
-          >
-            <i className="fab fa-discord"></i> Discord
-          </button>
+  className="btn btn-danger"
+  onClick={() => handleOAuthPopup("discord")}
+  disabled={!!loadingBtn}
+>
+  {loadingBtn === "discord" ? (
+    <>
+      <Loader /> Please wait...
+    </>
+  ) : (
+    <>
+      <i className="fab fa-discord"></i> Discord
+    </>
+  )}
+</button>
+
         </div>
       </div>
     </div>
