@@ -11,66 +11,63 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(
-  "https://new-backend-3jbn.onrender.com/login", // <- change this
-  { email, password },
-  { withCredentials: true }
-);
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://new-backend-3jbn.onrender.com/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-    if (response.data.success) {
-      console.log("Login successful:", response.data.message);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("isLoggedIn", "true");
-      navigate("/homepage");
-    } else {
-      console.error("Error during login:", response.data.message);
-      alert(response.data.message);
-    }
-  } catch (error) {
-    console.error("Login failed:", error);
-    alert("Invalid Credentials. Please try again.");
-  } finally {
-    setEmail("");
-    setPassword("");
-  }
-};
-
-const handleGoogleLogin = () => {
-  const popup = window.open(
-    "https://new-backend-3jbn.onrender.com/auth/google",
-    "_blank",
-    "width=500,height=600"
-  );
-
-  const receiveMessage = async (event) => {
-    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
-
-    if (event.data.success) {
-      try {
-        const response = await axios.get("https://new-backend-3jbn.onrender.com/auth/user", {
-          withCredentials: true
-        });
-
-        if (response.data.success && response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          localStorage.setItem("isLoggedIn", "true");
-          navigate("/homepage");
-        } else {
-          navigate("/login");
-        }
-      } catch (error) {
-        navigate("/login");
-      } finally {
-        window.removeEventListener("message", receiveMessage);
-        popup.close();
+      if (response.data.success) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("isLoggedIn", "true");
+        navigate("/homepage");
+      } else {
+        alert(response.data.message);
       }
+    } catch (error) {
+      alert("Login failed. Try again.");
+    } finally {
+      setEmail("");
+      setPassword("");
     }
   };
 
-  window.addEventListener("message", receiveMessage);
-};
+  const handleGoogleLogin = () => {
+    const popup = window.open(
+      "https://new-backend-3jbn.onrender.com/auth/google",
+      "_blank",
+      "width=500,height=600"
+    );
+
+    const receiveMessage = async (event) => {
+      if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+
+      if (event.data.success) {
+        try {
+          const response = await axios.get("https://new-backend-3jbn.onrender.com/auth/user", {
+            withCredentials: true
+          });
+
+          if (response.data.success) {
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+            localStorage.setItem("isLoggedIn", "true");
+            navigate("/homepage");
+          } else {
+            navigate("/login");
+          }
+        } catch (error) {
+          navigate("/login");
+        } finally {
+          window.removeEventListener("message", receiveMessage);
+          popup?.close();
+        }
+      }
+    };
+
+    window.addEventListener("message", receiveMessage);
+  };
 
 
 
