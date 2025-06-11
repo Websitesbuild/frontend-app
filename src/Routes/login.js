@@ -37,6 +37,42 @@ function Login() {
   }
 };
 
+const handleGoogleLogin = () => {
+  const popup = window.open(
+    "https://new-backend-3jbn.onrender.com/auth/google",
+    "_blank",
+    "width=500,height=600"
+  );
+
+  const receiveMessage = async (event) => {
+    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+
+    if (event.data.success) {
+      try {
+        const response = await axios.get("https://new-backend-3jbn.onrender.com/auth/user", {
+          withCredentials: true
+        });
+
+        if (response.data.success && response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          localStorage.setItem("isLoggedIn", "true");
+          navigate("/homepage");
+        } else {
+          navigate("/login");
+        }
+      } catch (error) {
+        navigate("/login");
+      } finally {
+        window.removeEventListener("message", receiveMessage);
+        popup.close();
+      }
+    }
+  };
+
+  window.addEventListener("message", receiveMessage);
+};
+
+
 
   return (
     <div className="login-container">
@@ -98,12 +134,7 @@ function Login() {
 
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open(
-    "https://new-backend-3jbn.onrender.com/auth/google",
-    "_self" // or "_blank" if you prefer new tab
-  );
-            }}
+            onClick={handleGoogleLogin}
           >
             <i className="fab fa-google"></i> Google
           </button>
