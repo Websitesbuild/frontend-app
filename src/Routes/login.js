@@ -98,15 +98,15 @@ function Login() {
 const receiveMessage = async (event) => {
   console.log("OAuth message from:", event.origin, event.data);
 
-  // if (
-  //   !allowedOrigins.includes(event.origin) ||
-  //   !event.data ||
-  //   event.data.source === "react-devtools-bridge" || // Ignore devtools
-  //   !event.data.success ||
-  //   !event.data.token
-  // ) {
-  //   return;
-  // }
+  if (
+    !allowedOrigins.includes(event.origin) ||
+    !event.data ||
+    event.data.source === "react-devtools-bridge" || // Ignore devtools
+    !event.data.success ||
+    !event.data.token
+  ) {
+    return;
+  }
 
   clearTimeout(timeout);
   window.removeEventListener("message", receiveMessage);
