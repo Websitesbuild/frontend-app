@@ -7,71 +7,32 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loadingBtn, setLoadingBtn] = useState(""); // '', 'login', 'google', 'github', 'discord'
 
   const navigate = useNavigate();
 
-  // Spinner element (inline style)
-function Loader() {
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        width: 18,
-        height: 18,
-        border: "2px solid #fff",
-        borderTop: "2px solid #007bff",
-        borderRadius: "50%",
-        marginRight: 8,
-        verticalAlign: "middle",
-        animation: "spin 1s linear infinite"
-      }}
-    />
-  );
-}
-
-// Inject spinner animation CSS (run once)
-if (!document.getElementById("login-spinner-style")) {
-  const style = document.createElement("style");
-  style.id = "login-spinner-style";
-  style.innerHTML = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
- 
-
-
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoadingBtn("login");
-  try {
-    const response = await axios.post(
-      "https://new-backend-3jbn.onrender.com/login",
-      { email, password }
-    );
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://new-backend-3jbn.onrender.com/login",
+        { email, password }
+      );
 
-    if (response.data.success && response.data.token) {
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("token", response.data.token);
-      navigate("/homepage");
-    } else {
-      alert(response.data.message);
+      if (response.data.success && response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("token", response.data.token); // Store JWT
+        navigate("/homepage");
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert("Login failed. Try again.");
+    } finally {
+      setEmail("");
+      setPassword("");
     }
-  } catch (error) {
-    alert("Login failed. Try again.");
-  } finally {
-    setEmail("");
-    setPassword("");
-    setLoadingBtn("");
-  }
-};
-
+  };
 
   const handleOAuthPopup = (provider) => {
     const popup = window.open(
@@ -178,20 +139,9 @@ if (!document.getElementById("login-spinner-style")) {
             </span>
           </div>
 
-          <button
-  type="submit"
-  className="btn btn-primary"
-  disabled={loadingBtn === "login"}
->
-  {loadingBtn === "login" ? (
-    <>
-      <Loader /> Please wait...
-    </>
-  ) : (
-    "Login"
-  )}
-</button>
-
+          <button type="submit" className="btn btn-primary">
+            Login
+          </button>
 
           <p className="mt-3">
             Don't have an account? <a href="/register">Register here</a>
