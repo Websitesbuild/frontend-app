@@ -68,7 +68,7 @@ function Login() {
     }
   };
 
-  const handleOAuthPopup = (provider) => {
+ const handleOAuthPopup = (provider) => {
   setLoadingBtn(provider);
   const popup = window.open(
     `https://new-backend-3jbn.onrender.com/auth/${provider}`,
@@ -77,43 +77,47 @@ function Login() {
   );
 
   const receiveMessage = async (event) => {
-  if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+    console.log("⚡ Message received:", event.origin, event.data); // TEMP
+    // ✅ Use frontend domain here
+    if (event.origin !== "https://frontend-app-inky-three.vercel.app") return;
 
-  window.removeEventListener("message", receiveMessage);
-  popup?.close();
 
-  if (event.data.success && event.data.token) {
-    localStorage.setItem("token", event.data.token);
-    localStorage.setItem("isLoggedIn", "true");
+    window.removeEventListener("message", receiveMessage);
+    popup?.close();
 
-    try {
-      const userRes = await axios.get(
-        "https://new-backend-3jbn.onrender.com/auth/user",
-        {
-          headers: {
-            Authorization: `Bearer ${event.data.token}`,
-          },
+    if (event.data.success && event.data.token) {
+      localStorage.setItem("token", event.data.token);
+      localStorage.setItem("isLoggedIn", "true");
+
+      try {
+        const userRes = await axios.get(
+          "https://new-backend-3jbn.onrender.com/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${event.data.token}`,
+            },
+          }
+        );
+        if (userRes.data.success) {
+          localStorage.setItem("user", JSON.stringify(userRes.data.user));
+          setLoadingBtn(""); // ✅ Clear loading state before navigating
+          navigate("/homepage");
+        } else {
+          setLoadingBtn("");
+          navigate("/login");
         }
-      );
-      if (userRes.data.success) {
-        localStorage.setItem("user", JSON.stringify(userRes.data.user));
-        setLoadingBtn(""); // <-- set loadingBtn to "" BEFORE navigating
-        navigate("/homepage");
-      } else {
+      } catch (err) {
         setLoadingBtn("");
         navigate("/login");
       }
-    } catch (err) {
+    } else {
       setLoadingBtn("");
-      navigate("/login");
     }
-  } else {
-    setLoadingBtn("");
-  }
-};
+  };
 
   window.addEventListener("message", receiveMessage, { once: true });
 };
+
 
   return (
     <div className="login-container">
