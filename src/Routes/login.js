@@ -78,8 +78,8 @@ function Login() {
       console.log("⚡ OAuth message received:", event.origin, event.data);
 
       // ✅ Cleanup early
-      window.removeEventListener("message", receiveMessage);
-      popup?.close();
+      // window.removeEventListener("message", receiveMessage);
+      // popup?.close();
 
       // 🔒 Validate message source
       if (!allowedOrigins.includes(event.origin) || !event.data || event.data.source === "react-devtools-bridge") {
