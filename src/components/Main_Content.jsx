@@ -12,8 +12,10 @@ const getAuthHeader = () => {
 function MainContent() {
   const [members, setMembers] = useState(null);
   const [projects, setProjects] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const memberRes = await axios.get(
         "https://new-backend-3jbn.onrender.com/allMember",
@@ -29,6 +31,8 @@ function MainContent() {
       setMembers([]);
       setProjects([]);
       console.error("Failed to fetch members or projects:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,12 +44,12 @@ function MainContent() {
     <div className="container content">
       <Projects
         heading="Projects"
-        data={projects}
+        data={loading ? "loading" : projects}
         refreshData={fetchData}
       />
       <Projects
         heading="Members"
-        data={members}
+        data={loading ? "loading" : members}
         refreshData={fetchData}
       />
       <Projects

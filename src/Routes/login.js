@@ -3,15 +3,48 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
+// Loader spinner component
+function Loader() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: 18,
+        height: 18,
+        border: "2px solid #fff",
+        borderTop: "2px solid #007bff",
+        borderRadius: "50%",
+        marginRight: 8,
+        verticalAlign: "middle",
+        animation: "spin 1s linear infinite",
+      }}
+    />
+  );
+}
+
+// Add keyframes for loader animation (only once)
+if (!document.getElementById("login-spinner-style")) {
+  const style = document.createElement("style");
+  style.id = "login-spinner-style";
+  style.innerHTML = `
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }`;
+  document.head.appendChild(style);
+}
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingBtn, setLoadingBtn] = useState(""); // "", "login", "google", "github", "discord"
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoadingBtn("login");
     try {
       const response = await axios.post(
         "https://new-backend-3jbn.onrender.com/login",
@@ -31,10 +64,12 @@ function Login() {
     } finally {
       setEmail("");
       setPassword("");
+      setLoadingBtn("");
     }
   };
 
   const handleOAuthPopup = (provider) => {
+    setLoadingBtn(provider);
     const popup = window.open(
       `https://new-backend-3jbn.onrender.com/auth/${provider}`,
       "_blank",
@@ -70,14 +105,15 @@ function Login() {
         } finally {
           window.removeEventListener("message", receiveMessage);
           popup?.close();
+          setLoadingBtn("");
         }
+      } else {
+        setLoadingBtn("");
       }
     };
 
     window.addEventListener("message", receiveMessage, { once: true });
   };
-
-  // ...rest of your component (form, buttons, etc.) remains unchanged...
 
   return (
     <div className="login-container">
@@ -96,6 +132,7 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
+              disabled={loadingBtn === "login"}
             />
           </div>
 
@@ -111,11 +148,16 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              disabled={loadingBtn === "login"}
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
               style={{
-                
+                position: "absolute",
+                right: 10,
+                top: 38,
+                cursor: "pointer",
+                color: "#888"
               }}
               aria-label={showPassword ? "Hide password" : "Show password"}
               title={showPassword ? "Hide password" : "Show password"}
@@ -124,8 +166,20 @@ function Login() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            Login
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loadingBtn === "login"}
+            style={{ minWidth: 120 }}
+          >
+            {loadingBtn === "login" ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
 
           <p className="mt-3">
@@ -140,28 +194,60 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("google")}
+            disabled={!!loadingBtn}
+            style={{ minWidth: 120, marginBottom: 8 }}
           >
-            <i className="fab fa-google"></i> Google
+            {loadingBtn === "google" ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-google"></i> Google
+              </>
+            )}
           </button>
 
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("github")}
+            disabled={!!loadingBtn}
+            style={{ minWidth: 120, marginBottom: 8 }}
           >
-            <i className="fab fa-github"></i> GitHub
+            {loadingBtn === "github" ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-github"></i> GitHub
+              </>
+            )}
           </button>
 
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("discord")}
+            disabled={!!loadingBtn}
+            style={{ minWidth: 120 }}
           >
-            <i className="fab fa-discord"></i> Discord
+            {loadingBtn === "discord" ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              <>
+                <i className="fab fa-discord"></i> Discord
+              </>
+            )}
           </button>
         </div>
       </div>
     </div>
   );
-
 }
 
 export default Login;

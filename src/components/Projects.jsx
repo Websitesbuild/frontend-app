@@ -142,6 +142,51 @@ function Projects({ heading, data, refreshData }) {
     }
   };
 
+  // --- LOADING LOGIC UPDATE ---
+  // If data is "loading" (from MainContent), show loading message
+  let content;
+  if (data === "loading") {
+    content = (
+      <div style={{ display: "flex", justifyContent: "center", alignContent: "center", width: "100%" }}>
+        <p>Loading...</p>
+      </div>
+    );
+  } else if (!data || data.length === 0) {
+    content = (
+      <div style={{ display: "flex", justifyContent: "center", alignContent: "center", width: "100%" }}>
+        <p>No data to display</p>
+      </div>
+    );
+  } else {
+    content = (
+      heading === "Projects" || heading === "Upcoming Projects"
+        ? data.map((project, index) => (
+          <div
+            className="project-item"
+            key={index}
+            onClick={() => handleCardClick(heading, project.proj_id)}
+          >
+            <h3>{project.proj_name}</h3>
+            <p>{project.proj_desc}</p>
+            <p>Status: {project.status}</p>
+            <p>Price: ₹ {project.price}/- per piece</p>
+          </div>
+        ))
+        : data.map((member, index) => (
+          <div
+            className="project-item"
+            key={index}
+            onClick={() => handleCardClick(heading, member.mem_id)}
+          >
+            <h3>{member.usr_name}</h3>
+            <p>{member.address}</p>
+            <p>Contact: {member.phone}</p>
+          </div>
+        ))
+    );
+  }
+  // --- END LOADING LOGIC UPDATE ---
+
   return (
     <div className="projects-container">
       <div className="heading">
@@ -156,37 +201,7 @@ function Projects({ heading, data, refreshData }) {
       </div>
       <hr />
       <div className="project-list">
-        {(!data || data.length === 0) ? (
-          <div style={{ display: "flex", justifyContent: "center", alignContent: "center", width: "100%" }}>
-            <p>No data to display</p>
-          </div>
-        ) : (
-          (heading === "Projects" || heading === "Upcoming Projects"
-            ? data.map((project, index) => (
-              <div
-                className="project-item"
-                key={index}
-                onClick={() => handleCardClick(heading, project.proj_id)}
-              >
-                <h3>{project.proj_name}</h3>
-                <p>{project.proj_desc}</p>
-                <p>Status: {project.status}</p>
-                <p>Price: ₹ {project.price}/- per piece</p>
-              </div>
-            ))
-            : data.map((member, index) => (
-              <div
-                className="project-item"
-                key={index}
-                onClick={() => handleCardClick(heading, member.mem_id)}
-              >
-                <h3>{member.usr_name}</h3>
-                <p>{member.address}</p>
-                <p>Contact: {member.phone}</p>
-              </div>
-            ))
-          )
-        )}
+        {content}
       </div>
       <hr />
       {form && (
