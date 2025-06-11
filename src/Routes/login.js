@@ -91,7 +91,8 @@ function Login() {
 
  const allowedOrigins = [
   "https://new-backend-3jbn.onrender.com",
-  "http://localhost:5000", // add your backend dev URL if needed
+  "http://localhost:5000",
+  "https://frontend-app-inky-three.vercel.app", // <-- add this!
 ];
 
 const receiveMessage = async (event) => {
