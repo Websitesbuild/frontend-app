@@ -38,11 +38,11 @@ if (!document.getElementById("register-spinner-style")) {
 function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingBtn, setLoadingBtn] = useState(""); // "", "register", "google", "github", "discord"
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setLoading(true);
+    setLoadingBtn("register");
     const email = event.target.email.value;
     const password = event.target.password.value;
 
@@ -57,7 +57,7 @@ function Register() {
       alert('Error during registration: ' + err.message);
     } finally {
       event.target.reset();
-      setLoading(false);
+      setLoadingBtn("");
     }
   }
 
@@ -65,7 +65,7 @@ function Register() {
 
   // Social register with loader
   const handleOAuthPopup = (provider) => {
-    setLoading(true);
+    setLoadingBtn(provider);
     const popup = window.open(
       `https://new-backend-3jbn.onrender.com/auth/${provider}`,
       "_blank",
@@ -98,10 +98,10 @@ function Register() {
         } finally {
           window.removeEventListener("message", receiveMessage);
           popup?.close();
-          setLoading(false);
+          setLoadingBtn("");
         }
       } else {
-        setLoading(false);
+        setLoadingBtn("");
       }
     };
 
@@ -122,7 +122,7 @@ function Register() {
               id="email"
               placeholder="Enter your email"
               required
-              disabled={loading}
+              disabled={loadingBtn === "register"}
             />
           </div>
 
@@ -134,7 +134,7 @@ function Register() {
               id="password"
               placeholder="Enter your password"
               required
-              disabled={loading}
+              disabled={loadingBtn === "register"}
             />
             <span
               onClick={togglePassword}
@@ -150,8 +150,8 @@ function Register() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? (
+          <button type="submit" className="btn btn-primary" disabled={loadingBtn === "register"}>
+            {loadingBtn === "register" ? (
               <>
                 <Loader />
                 Please wait...
@@ -172,10 +172,10 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("google")}
-            disabled={loading}
+            disabled={!!loadingBtn}
             style={{ minWidth: 120, marginBottom: 8 }}
           >
-            {loading ? (
+            {loadingBtn === "google" ? (
               <>
                 <Loader />
                 Please wait...
@@ -190,10 +190,10 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("github")}
-            disabled={loading}
+            disabled={!!loadingBtn}
             style={{ minWidth: 120, marginBottom: 8 }}
           >
-            {loading ? (
+            {loadingBtn === "github" ? (
               <>
                 <Loader />
                 Please wait...
@@ -208,10 +208,10 @@ function Register() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("discord")}
-            disabled={loading}
+            disabled={!!loadingBtn}
             style={{ minWidth: 120 }}
           >
-            {loading ? (
+            {loadingBtn === "discord" ? (
               <>
                 <Loader />
                 Please wait...
