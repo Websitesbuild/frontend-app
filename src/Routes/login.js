@@ -89,43 +89,51 @@ function Login() {
     popup?.close();
   }, 100000); // 10 seconds timeout for safety
 
-  const receiveMessage = async (event) => {
-    if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
+ const allowedOrigins = [
+  "https://new-backend-3jbn.onrender.com",
+  "http://localhost:5000", // add your backend dev URL if needed
+];
 
-    clearTimeout(timeout);
-    window.removeEventListener("message", receiveMessage);
-    popup?.close();
+const receiveMessage = async (event) => {
+  // DEBUG: See what origin is sending the message
+  // console.log("OAuth message from:", event.origin, event.data);
 
-    if (event.data.success && event.data.token) {
-      localStorage.setItem("token", event.data.token);
-      localStorage.setItem("isLoggedIn", "true");
+  if (!allowedOrigins.includes(event.origin)) return;
 
-      try {
-        const userRes = await axios.get(
-          "https://new-backend-3jbn.onrender.com/auth/user",
-          {
-            headers: {
-              Authorization: `Bearer ${event.data.token}`,
-            },
-          }
-        );
+  clearTimeout(timeout);
+  window.removeEventListener("message", receiveMessage);
+  popup?.close();
 
-        if (userRes.data.success) {
-          localStorage.setItem("user", JSON.stringify(userRes.data.user));
-          setLoadingBtn(""); // ✅ Clear button loader
-          navigate("/homepage");
-        } else {
-          setLoadingBtn("");
-          navigate("/login");
+  if (event.data.success && event.data.token) {
+    localStorage.setItem("token", event.data.token);
+    localStorage.setItem("isLoggedIn", "true");
+
+    try {
+      const userRes = await axios.get(
+        "https://new-backend-3jbn.onrender.com/auth/user",
+        {
+          headers: {
+            Authorization: `Bearer ${event.data.token}`,
+          },
         }
-      } catch (err) {
+      );
+
+      if (userRes.data.success) {
+        localStorage.setItem("user", JSON.stringify(userRes.data.user));
+        setLoadingBtn("");
+        navigate("/homepage");
+      } else {
         setLoadingBtn("");
         navigate("/login");
       }
-    } else {
+    } catch (err) {
       setLoadingBtn("");
+      navigate("/login");
     }
-  };
+  } else {
+    setLoadingBtn("");
+  }
+};
 
   window.addEventListener("message", receiveMessage, { once: true });
 };
