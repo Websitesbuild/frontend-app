@@ -80,11 +80,9 @@ function Login() {
       if (event.origin !== "https://new-backend-3jbn.onrender.com") return;
 
       if (event.data.success && event.data.token) {
-        // Store JWT and user info (optional: fetch user with token)
         localStorage.setItem("token", event.data.token);
         localStorage.setItem("isLoggedIn", "true");
 
-        // Optionally fetch user info using the token
         try {
           const userRes = await axios.get(
             "https://new-backend-3jbn.onrender.com/auth/user",
@@ -94,6 +92,9 @@ function Login() {
               },
             }
           );
+          window.removeEventListener("message", receiveMessage);
+          popup?.close();
+          setLoadingBtn("");
           if (userRes.data.success) {
             localStorage.setItem("user", JSON.stringify(userRes.data.user));
             navigate("/homepage");
@@ -101,13 +102,14 @@ function Login() {
             navigate("/login");
           }
         } catch (err) {
-          navigate("/login");
-        } finally {
           window.removeEventListener("message", receiveMessage);
           popup?.close();
           setLoadingBtn("");
+          navigate("/login");
         }
       } else {
+        window.removeEventListener("message", receiveMessage);
+        popup?.close();
         setLoadingBtn("");
       }
     };
