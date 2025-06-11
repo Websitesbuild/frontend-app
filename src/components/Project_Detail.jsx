@@ -24,7 +24,7 @@ function Detail({ data }) {
       if (activeTab === "payments" && memberDetail && memberData) {
         try {
           const res = await axios.get(
-            `http://localhost:5000/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`
           );
           if (res.data.success) setPaymentHistory(res.data.payments);
           else setPaymentHistory([]);
@@ -40,7 +40,7 @@ function Detail({ data }) {
     async function fetchAvailableMembers() {
       try {
         const res = await axios.get(
-          `http://localhost:5000/members/available?exclude_proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`
         );
         if (res.data.success) setAvailableMembers(res.data.members);
         else setAvailableMembers([]);
@@ -60,7 +60,7 @@ function Detail({ data }) {
       members.map(async (member) => {
         try {
           const res = await axios.get(
-            `http://localhost:5000/member/${member.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${member.mem_id}/piece-history?proj_id=${data.project.proj_id}`
           );
           if (res.data.success) {
             const total = res.data.history.reduce(
@@ -84,7 +84,7 @@ function Detail({ data }) {
     async function fetchMembersAndTotals() {
       try {
         const res = await axios.get(
-          `http://localhost:5000/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
         );
         if (res.data.success) {
           setMembers(res.data.members);
@@ -106,7 +106,7 @@ function Detail({ data }) {
       if (memberDetail && memberData) {
         try {
           const res = await axios.get(
-            `http://localhost:5000/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
           );
           if (res.data.success) setPieceHistory(res.data.history);
           else setPieceHistory([]);
@@ -132,7 +132,7 @@ function Detail({ data }) {
         // completed_at will default to now if not provided
       };
       const res = await axios.post(
-        `http://localhost:5000/member/${memberData.mem_id}/piece-history`,
+        `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history`,
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -140,7 +140,7 @@ function Detail({ data }) {
         alert("Piece record added!");
         // Refresh piece history
         const historyRes = await axios.get(
-          `http://localhost:5000/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/piece-history?proj_id=${data.project.proj_id}`
         );
         if (historyRes.data.success) setPieceHistory(historyRes.data.history);
 
@@ -160,7 +160,7 @@ function Detail({ data }) {
     async function fetchMembers() {
       try {
         const res = await axios.get(
-          `http://localhost:5000/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
         );
         if (res.data.success) setMembers(res.data.members);
       } catch (err) {
@@ -188,7 +188,7 @@ function Detail({ data }) {
     };
     try {
       const response = await axios.post(
-        "http://localhost:5000/add/member",
+        "https://new-backend-3jbn.onrender.com/add/member",
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -197,7 +197,7 @@ function Detail({ data }) {
         setForm(false);
         // Refresh members list
         const res = await axios.get(
-          `http://localhost:5000/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
         );
         if (res.data.success) setMembers(res.data.members);
       } else {
@@ -214,7 +214,7 @@ function Detail({ data }) {
       return;
     try {
       const response = await axios.delete(
-        `http://localhost:5000/delete/project/${data.project.proj_id}`
+        `https://new-backend-3jbn.onrender.com/delete/project/${data.project.proj_id}`
       );
       if (response.data.success) {
         alert("Project deleted successfully!");
@@ -259,7 +259,7 @@ function Detail({ data }) {
     try {
       const payload = { proj_id: data.project.proj_id };
       const res = await axios.post(
-        `http://localhost:5000/member/${mem_id}/add-to-project`,
+        `https://new-backend-3jbn.onrender.com/member/${mem_id}/add-to-project`,
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -267,7 +267,7 @@ function Detail({ data }) {
         alert("Member added to project!");
         // Refresh both lists
         const membersRes = await axios.get(
-          `http://localhost:5000/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
         );
         if (membersRes.data.success) setMembers(membersRes.data.members);
         // Remove from availableMembers
@@ -289,18 +289,18 @@ function Detail({ data }) {
     try {
       // Remove member from this project only (set proj_id to NULL)
       const res = await axios.put(
-        `http://localhost:5000/member/${id}/remove-from-project`
+        `https://new-backend-3jbn.onrender.com/member/${id}/remove-from-project`
       );
       if (res.data.success) {
         alert("Member removed from project!");
         // Refresh members list
         const membersRes = await axios.get(
-          `http://localhost:5000/project/${data.project.proj_id}/members`
+          `https://new-backend-3jbn.onrender.com/project/${data.project.proj_id}/members`
         );
         if (membersRes.data.success) setMembers(membersRes.data.members);
         // Optionally, refresh available members list
         const availRes = await axios.get(
-          `http://localhost:5000/members/available?exclude_proj_id=${data.project.proj_id}`
+          `https://new-backend-3jbn.onrender.com/members/available?exclude_proj_id=${data.project.proj_id}`
         );
         if (availRes.data.success) setAvailableMembers(availRes.data.members);
       } else {

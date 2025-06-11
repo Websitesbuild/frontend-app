@@ -12,8 +12,8 @@ function MainContent() {
 
   const fetchData = async () => {
     try {
-      const memberRes = await axios.get("http://localhost:5000/allMember");
-      const projectRes = await axios.get("http://localhost:5000/allProjects");
+      const memberRes = await axios.get("https://new-backend-3jbn.onrender.com/allMember");
+      const projectRes = await axios.get("https://new-backend-3jbn.onrender.com/allProjects");
       // The API returns { success: true, members: [...] } and { success: true, projects: [...] }
       // console.log("Members", memberRes.data.members);
       // console.log("Projects", projectRes.data.projects);

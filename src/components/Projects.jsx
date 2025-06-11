@@ -34,7 +34,7 @@ async function handleSubmit(event) {
       price: String(data.price),
       material: data.material,
     };
-    url = "http://localhost:5000/add/project";
+    url = "https://new-backend-3jbn.onrender.com/add/project";
   } else if (heading === "Upcoming Projects") {
     payload = {
       name: data.name,
@@ -43,7 +43,7 @@ async function handleSubmit(event) {
       price: String(data.price),
       material: data.material,
     };
-    url = "http://localhost:5000/add/upcoming-project";
+    url = "https://new-backend-3jbn.onrender.com/add/upcoming-project";
   } else if (heading === "Members") {
     payload = {
       usr_name: data.name,
@@ -51,7 +51,7 @@ async function handleSubmit(event) {
       phone: data.phone,
       proj_id: data.project,
     };
-    url = "http://localhost:5000/add/member";
+    url = "https://new-backend-3jbn.onrender.com/add/member";
   }
 
   try {
@@ -82,13 +82,13 @@ if (response.data.success) {
   try {
     switch (cardType) {
       case "Projects":
-        response = await axios.get(`http://localhost:5000/project/${id}`);
+        response = await axios.get(`https://new-backend-3jbn.onrender.com/project/${id}`);
         break;
       case "Members":
-        response = await axios.get(`http://localhost:5000/member/${id}`);
+        response = await axios.get(`https://new-backend-3jbn.onrender.com/member/${id}`);
         break;
       case "Upcoming Projects":
-        response = await axios.get(`http://localhost:5000/upcoming/${id}`);
+        response = await axios.get(`https://new-backend-3jbn.onrender.com/upcoming/${id}`);
         break;
       default:
         console.error("Unknown card type:", cardType);
@@ -113,7 +113,7 @@ if (response.data.success) {
 
 const fetchFormData = async()=>{
     try{
-    const res = await axios.get("http://localhost:5000/form/data");
+    const res = await axios.get("https://new-backend-3jbn.onrender.com/form/data");
     setProjectData(res.data.data);
     console.log(res.data.data);
   }
