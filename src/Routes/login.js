@@ -125,8 +125,11 @@ const receiveMessage = async (event) => {
       }
     );
 
+    console.log(userRes);
+
     if (userRes.data.success) {
       localStorage.setItem("user", JSON.stringify(userRes.data.user));
+      console.log("Navigating")
       setLoadingBtn("");
       navigate("/homepage");
     } else {
