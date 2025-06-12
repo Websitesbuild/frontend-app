@@ -530,7 +530,7 @@ body, html {
 
 .member-action-btns{
     /* border: 1px solid #000000; */
-    min-width: 300px !important;
+    min-width: 300px;
 }
 .project-members .member .action-btns p{
     font-size: 1rem;
