@@ -11,31 +11,33 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "https://new-backend-3jbn.onrender.com/login",
-        { email, password }
-      );
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    const response = await axios.post(
+      "https://new-backend-3jbn.onrender.com/login",
+      { email, password }
+    );
 
-      if (response.data.success && response.data.token) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("token", response.data.token); // Store JWT
-        navigate("/homepage");
-      } else {
-        alert(response.data.message);
-      }
-    } catch (error) {
-      alert("Login failed. Try again.");
-    } finally {
-      setLoading(false);
+    if (response.data.success && response.data.token) {
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("token", response.data.token); // Store JWT
+      navigate("/homepage");
+    } else {
+      alert(response.data.message);
       setEmail("");
       setPassword("");
     }
-  };
+  } catch (error) {
+    alert("Login failed. Try again.");
+    setEmail("");
+    setPassword("");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleOAuthPopup = (provider) => {
     const popup = window.open(
