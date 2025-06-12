@@ -7,11 +7,13 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://new-backend-3jbn.onrender.com/login",
@@ -29,6 +31,7 @@ function Login() {
     } catch (error) {
       alert("Login failed. Try again.");
     } finally {
+      setLoading(false);
       setEmail("");
       setPassword("");
     }
@@ -90,6 +93,37 @@ function Login() {
     window.addEventListener("message", receiveMessage, { once: true });
   };
 
+  // Loader spinner component
+  function Loader() {
+    return (
+      <span
+        style={{
+          display: "inline-block",
+          width: 18,
+          height: 18,
+          border: "2px solid #fff",
+          borderTop: "2px solid #007bff",
+          borderRadius: "50%",
+          marginRight: 8,
+          verticalAlign: "middle",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+    );
+  }
+
+  // Add keyframes for loader animation (only once)
+  if (!document.getElementById("login-spinner-style")) {
+    const style = document.createElement("style");
+    style.id = "login-spinner-style";
+    style.innerHTML = `
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }`;
+    document.head.appendChild(style);
+  }
+
   return (
     <div className="login-container">
       <h1>Login</h1>
@@ -107,6 +141,7 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
+              disabled={loading}
             />
           </div>
 
@@ -122,6 +157,7 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              disabled={loading}
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
@@ -139,8 +175,15 @@ function Login() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            Login
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
 
           <p className="mt-3">
@@ -155,6 +198,7 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("google")}
+            disabled={loading}
           >
             <i className="fab fa-google"></i> Google
           </button>
@@ -162,6 +206,7 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("github")}
+            disabled={loading}
           >
             <i className="fab fa-github"></i> GitHub
           </button>
@@ -169,6 +214,7 @@ function Login() {
           <button
             className="btn btn-danger"
             onClick={() => handleOAuthPopup("discord")}
+            disabled={loading}
           >
             <i className="fab fa-discord"></i> Discord
           </button>

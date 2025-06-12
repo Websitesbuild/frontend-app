@@ -9,9 +9,11 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(
         'https://new-backend-3jbn.onrender.com/register',
@@ -25,6 +27,7 @@ function Register() {
     } catch (err) {
       alert('Error during registration: ' + err.message);
     }
+    setLoading(false);
     setEmail("");
     setPassword("");
     event.target.reset();
@@ -89,6 +92,37 @@ function Register() {
     window.addEventListener("message", receiveMessage, { once: true });
   };
 
+  // Loader spinner component
+  function Loader() {
+    return (
+      <span
+        style={{
+          display: "inline-block",
+          width: 18,
+          height: 18,
+          border: "2px solid #fff",
+          borderTop: "2px solid #007bff",
+          borderRadius: "50%",
+          marginRight: 8,
+          verticalAlign: "middle",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+    );
+  }
+
+  // Add keyframes for loader animation (only once)
+  if (!document.getElementById("register-spinner-style")) {
+    const style = document.createElement("style");
+    style.id = "register-spinner-style";
+    style.innerHTML = `
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }`;
+    document.head.appendChild(style);
+  }
+
   return (
     <div className="register-container login-container">
       <h1>Register</h1>
@@ -104,6 +138,7 @@ function Register() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
 
@@ -117,6 +152,7 @@ function Register() {
               required
               value={password}
               onChange={e => setPassword(e.target.value)}
+              disabled={loading}
             />
             <span
               onClick={togglePassword}
@@ -132,7 +168,16 @@ function Register() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary">Register</button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader />
+                Please wait...
+              </>
+            ) : (
+              "Register"
+            )}
+          </button>
 
           <p className="mt-3">
             Already have an account? <a href="/login">Login here</a>
