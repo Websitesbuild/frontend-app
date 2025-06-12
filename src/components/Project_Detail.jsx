@@ -377,7 +377,7 @@ function Detail({ data }) {
                   {member.address} , {member.phone}
                 </p>
               </div>
-              <div className="action-btns">
+              <div className="action-btns member-action-btns">
                 <p>{memberPieceTotals[member.mem_id] || 0} Piece</p>
                 <Tooltip title="Edit Member" arrow>
                   <EditIcon
@@ -422,7 +422,7 @@ function Detail({ data }) {
                   {member.address} , {member.phone}
                 </p>
               </div>
-              <div className="action-btns">
+              <div className="action-btns existing_member-action-btns">
                 <button
                   onClick={() => handleAddExistingMember(member.mem_id)}
                   style={{ cursor: "pointer" }}

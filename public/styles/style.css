@@ -521,6 +521,12 @@ body, html {
     cursor:default;
     /* border: 1px solid black; */
 }
+.existing_member-action-btns{
+    min-width: 50px;
+}
+.member-action-btns{
+    min-width: 120px;
+}
 
 .member-action-btns{
     /* border: 1px solid #000000; */
