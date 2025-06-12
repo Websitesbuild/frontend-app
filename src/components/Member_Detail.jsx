@@ -197,7 +197,7 @@ function MemberDetail({ memberId }) {
                     <p>{proj.proj_name}</p>
                     <p>{proj.proj_desc}</p>
                 </div>
-                <div className="member-action-btns action-btns">
+                <div className="project_member-action-btns action-btns">
                     <p>Piece Completed: {pieceTotals[proj.proj_id] || 0}</p>
                     <p>Paid: ₹ {paymentTotals[proj.proj_id] || 0}</p>
                     <Tooltip title="Edit Project Detail" arrow>
