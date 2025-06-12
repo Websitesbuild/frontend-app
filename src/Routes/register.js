@@ -7,37 +7,104 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-    
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const email = event.target.email.value;
-    const password = event.target.password.value;
-
-    // Use deployed backend URL
-    const response = await axios.post('https://new-backend-3jbn.onrender.com/register', { email, password });
-    if (response.data.success) {
-      // Optionally, you could auto-login here by requesting /login and storing the JWT
-      // For now, just redirect to login
-      navigate('/login');
-    } else {
-      alert('Error during registration: ' + response.data.message);
+    try {
+      const response = await axios.post(
+        'https://new-backend-3jbn.onrender.com/register',
+        { email, password }
+      );
+      if (response.data.success) {
+        navigate('/login');
+      } else {
+        alert('Error during registration: ' + response.data.message);
+      }
+    } catch (err) {
+      alert('Error during registration: ' + err.message);
     }
-
+    setEmail("");
+    setPassword("");
     event.target.reset();
   }
 
   const togglePassword = () => setShowPassword(prev => !prev);
+
+  // Social register with JWT handling
+  const handleOAuthPopup = (provider) => {
+    const popup = window.open(
+      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+      "_blank",
+      "width=500,height=600"
+    );
+
+    const allowedOrigins = [
+      "https://frontend-app-inky-three.vercel.app",
+      "https://new-backend-3jbn.onrender.com",
+      "http://localhost:3000",
+      "http://localhost:5000"
+    ];
+
+    const receiveMessage = async (event) => {
+      if (
+        !allowedOrigins.includes(event.origin) ||
+        !event.data ||
+        event.data.source === "react-devtools-bridge" ||
+        event.data.source === "react-devtools-content-script" ||
+        !event.data.success ||
+        !event.data.token
+      ) {
+        return;
+      }
+
+      window.removeEventListener("message", receiveMessage);
+      popup?.close();
+
+      try {
+        localStorage.setItem("token", event.data.token);
+        localStorage.setItem("isLoggedIn", "true");
+
+        const response = await axios.get(
+          "https://new-backend-3jbn.onrender.com/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${event.data.token}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          navigate("/homepage");
+        } else {
+          navigate("/login");
+        }
+      } catch (err) {
+        navigate("/login");
+      }
+    };
+
+    window.addEventListener("message", receiveMessage, { once: true });
+  };
 
   return (
     <div className="register-container login-container">
       <h1>Register</h1>
       <div className="register-box login-box">
         <form onSubmit={handleSubmit}>
-
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email address</label>
-            <input type="email" className="form-control" id="email" placeholder="Enter your email" required />
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              placeholder="Enter your email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="mb-3 position-relative">
@@ -48,6 +115,8 @@ function Register() {
               id="password"
               placeholder="Enter your password"
               required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
             />
             <span
               onClick={togglePassword}
@@ -75,27 +144,21 @@ function Register() {
           <h2>Or register with:</h2>
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/google", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("google")}
           >
             <i className="fab fa-google"></i> Google
           </button>
 
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/github", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("github")}
           >
             <i className="fab fa-github"></i> GitHub
           </button>
 
           <button
             className="btn btn-danger"
-            onClick={() => {
-              window.open("https://new-backend-3jbn.onrender.com/auth/discord", "_blank", "width=500,height=600");
-            }}
+            onClick={() => handleOAuthPopup("discord")}
           >
             <i className="fab fa-discord"></i> Discord
           </button>

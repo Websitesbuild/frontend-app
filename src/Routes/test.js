@@ -1,60 +1,181 @@
-// ...existing imports...
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// ...existing code...
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
-// Add this helper at the top (after imports)
-const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-// ...inside MemberDetail and ProjectDetailPopup, update all axios calls:
+  const navigate = useNavigate();
 
-// Example for GET:
-await axios.get(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/piece-history?proj_id=${proj.proj_id}`,
-  { headers: getAuthHeader() }
-);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://new-backend-3jbn.onrender.com/login",
+        { email, password }
+      );
 
-// Example for POST/PUT/DELETE:
-await axios.post(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/payments`,
-  { proj_id: project.proj_id, amount: Number(amount), remarks: remarks || "" },
-  { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
-);
+      if (response.data.success && response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("token", response.data.token); // Store JWT
+        navigate("/homepage");
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert("Login failed. Try again.");
+    } finally {
+      setEmail("");
+      setPassword("");
+    }
+  };
 
-// ...repeat for ALL axios requests in this file...
+  const handleOAuthPopup = (provider) => {
+    const popup = window.open(
+      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+      "_blank",
+      "width=500,height=600"
+    );
 
-// For example, update these blocks:
+    const allowedOrigins = [
+      "https://frontend-app-inky-three.vercel.app",
+      "https://new-backend-3jbn.onrender.com",
+      "http://localhost:3000",
+      "http://localhost:5000"
+    ];
 
-// 1. In ProjectDetailPopup (handleAddPayment, handleAddMorePiece, useEffect fetches)
-await axios.post(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/payments`,
-  { proj_id: project.proj_id, amount: Number(amount), remarks: remarks || "" },
-  { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
-);
+    const receiveMessage = async (event) => {
+      if (
+        !allowedOrigins.includes(event.origin) ||
+        !event.data ||
+        event.data.source === "react-devtools-bridge" ||
+        event.data.source === "react-devtools-content-script" ||
+        !event.data.success ||
+        !event.data.token
+      ) {
+        return;
+      }
 
-// 2. In MemberDetail (fetches, handleRemoveFromProject, handleAddToProject, handleDelete, etc.)
-await axios.get(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}`,
-  { headers: getAuthHeader() }
-);
+      window.removeEventListener("message", receiveMessage);
+      popup?.close();
 
-await axios.put(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/remove-from-project`,
-  { proj_id },
-  { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
-);
+      try {
+        localStorage.setItem("token", event.data.token);
+        localStorage.setItem("isLoggedIn", "true");
 
-await axios.delete(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}`,
-  { headers: getAuthHeader() }
-);
+        const response = await axios.get(
+          "https://new-backend-3jbn.onrender.com/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${event.data.token}`,
+            },
+          }
+        );
 
-await axios.post(
-  `https://new-backend-3jbn.onrender.com/member/${memberId}/add-to-project`,
-  { proj_id },
-  { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
-);
+        if (response.data.success) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          navigate("/homepage");
+        } else {
+          navigate("/login");
+        }
+      } catch (err) {
+        navigate("/login");
+      }
+    };
 
-// ...and so on for every axios call in this file.
+    window.addEventListener("message", receiveMessage, { once: true });
+  };
+
+  return (
+    <div className="login-container">
+      <h1>Login</h1>
+      <div className="login-box">
+        <form onSubmit={handleLogin}>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label">
+              Email address
+            </label>
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div className="mb-3" style={{ position: "relative" }}>
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              className="form-control"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 10,
+                top: 38,
+                cursor: "pointer",
+                color: "#888",
+              }}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              title={showPassword ? "Hide password" : "Show password"}
+            >
+              <RemoveRedEyeIcon />
+            </span>
+          </div>
+
+          <button type="submit" className="btn btn-primary">
+            Login
+          </button>
+
+          <p className="mt-3">
+            Don't have an account? <a href="/register">Register here</a>
+          </p>
+        </form>
+
+        <hr />
+        <div className="social-login">
+          <h2>Or login with:</h2>
+
+          <button
+            className="btn btn-danger"
+            onClick={() => handleOAuthPopup("google")}
+          >
+            <i className="fab fa-google"></i> Google
+          </button>
+
+          <button
+            className="btn btn-danger"
+            onClick={() => handleOAuthPopup("github")}
+          >
+            <i className="fab fa-github"></i> GitHub
+          </button>
+
+          <button
+            className="btn btn-danger"
+            onClick={() => handleOAuthPopup("discord")}
+          >
+            <i className="fab fa-discord"></i> Discord
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
