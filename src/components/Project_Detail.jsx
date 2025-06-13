@@ -344,10 +344,12 @@ function Detail({ data }) {
         </p>
         <p>Price: ₹ {data.project.price}/- per piece</p>
         <h4>
-          Total Earning: ₹{" "}
-          {Object.values(memberPieceTotals).reduce((sum, val) => sum + val, 0) *
-            Number(data.project.price)}
-        </h4>
+  Total Earning: ₹{" "}
+  {(
+    Object.values(memberPieceTotals).reduce((sum, val) => sum + val, 0) *
+    Number(data.project.price)
+  ).toFixed(2)}
+</h4>
       </div>
       <br />
       <hr />
