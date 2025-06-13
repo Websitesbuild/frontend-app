@@ -50,43 +50,49 @@ function Register() {
       "http://localhost:5000"
     ];
 
-    const receiveMessage = async (event) => {
-      if (
-        !allowedOrigins.includes(event.origin) ||
-        !event.data ||
-        event.data.source === "react-devtools-bridge" ||
-        event.data.source === "react-devtools-content-script" ||
-        !event.data.success ||
-        !event.data.token
-      ) {
-        return;
+   const receiveMessage = async (event) => {
+  if (
+    !allowedOrigins.includes(event.origin) ||
+    !event.data ||
+    event.data.source === "react-devtools-bridge" ||
+    event.data.source === "react-devtools-content-script" ||
+    !event.data.success ||
+    !event.data.token
+  ) {
+    return;
+  }
+
+  window.removeEventListener("message", receiveMessage);
+  popup?.close();
+
+  try {
+    localStorage.setItem("token", event.data.token);
+    localStorage.setItem("isLoggedIn", "true");
+
+    const response = await axios.get(
+      "https://new-backend-3jbn.onrender.com/auth/user",
+      {
+        headers: {
+          Authorization: `Bearer ${event.data.token}`,
+        },
       }
+    );
 
-      window.removeEventListener("message", receiveMessage);
-      popup?.close();
-
-      try {
-        localStorage.setItem("token", event.data.token);
-        localStorage.setItem("isLoggedIn", "true");
-
-        const response = await axios.get(
-          "https://new-backend-3jbn.onrender.com/auth/user",
-          {
-            headers: {
-              Authorization: `Bearer ${event.data.token}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          navigate("/homepage");
-        } else {
-          navigate("/login");
-        }
-      } catch (err) {
-        navigate("/login");
+    if (response.data.success) {
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      // Store user role for frontend role-based UI
+      if (response.data.user && response.data.user.role) {
+        localStorage.setItem("role", response.data.user.role);
+      } else {
+        localStorage.removeItem("role");
       }
+      navigate("/homepage");
+    } else {
+      navigate("/login");
+    }
+  } catch (err) {
+    navigate("/login");
+  }
     };
 
     window.addEventListener("message", receiveMessage, { once: true });

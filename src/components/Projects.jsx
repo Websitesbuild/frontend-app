@@ -11,6 +11,9 @@ function Projects({ heading, data, refreshData }) {
   const [projectData, setProjectData] = useState(null);
   const tooltip = `Add New ${heading}`;
 
+  // Role check: Only admin can add
+  const isAdmin = localStorage.getItem("role") === "admin";
+
   function handleClick() {
     setForm(!form);
     setBlur(!blur);
@@ -40,6 +43,7 @@ function Projects({ heading, data, refreshData }) {
         status: data.status,
         price: String(data.price),
         material: data.material,
+        datetime: data.datetime,
       };
       url = "https://new-backend-3jbn.onrender.com/add/project";
     } else if (heading === "Upcoming Projects") {
@@ -49,6 +53,7 @@ function Projects({ heading, data, refreshData }) {
         status: data.status,
         price: String(data.price),
         material: data.material,
+        datetime: data.datetime,
       };
       url = "https://new-backend-3jbn.onrender.com/add/upcoming-project";
     } else if (heading === "Members") {
@@ -191,20 +196,22 @@ function Projects({ heading, data, refreshData }) {
     <div className="projects-container">
       <div className="heading">
         <h2>{heading}</h2>
-        <Tooltip title={tooltip} arrow>
-          <AddIcon
-            fontSize="large"
-            onClick={handleClick}
-            style={{ cursor: "pointer" }}
-          />
-        </Tooltip>
+        {isAdmin && (
+          <Tooltip title={tooltip} arrow>
+            <AddIcon
+              fontSize="large"
+              onClick={handleClick}
+              style={{ cursor: "pointer" }}
+            />
+          </Tooltip>
+        )}
       </div>
       <hr />
       <div className="project-list">
         {content}
       </div>
       <hr />
-      {form && (
+      {isAdmin && form && (
         <div className="pop-up-form">
           <h3>Add New {(heading === "Projects" || heading === "Upcoming Projects") ? "Project" : "Member"}</h3>
           <Tooltip title="Close Form" arrow>

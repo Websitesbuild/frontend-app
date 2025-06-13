@@ -21,6 +21,9 @@ function MemberDetail({ memberId }) {
   const [refreshKey, setRefreshKey] = React.useState(0);
   const navigate = useNavigate();
 
+  // Role check: Only admin can add/edit/delete
+  const isAdmin = localStorage.getItem("role") === "admin";
+
   // Fetch piece totals and payment totals for all projects
   React.useEffect(() => {
     async function fetchTotals() {
@@ -200,17 +203,22 @@ function MemberDetail({ memberId }) {
                 <div className="project_member-action-btns action-btns">
                     <p>Piece Completed: {pieceTotals[proj.proj_id] || 0}</p>
                     <p>Paid: ₹ {paymentTotals[proj.proj_id] || 0}</p>
-                    <Tooltip title="Edit Project Detail" arrow>
-                <EditIcon
-                  style={{ cursor: "pointer" }}
-                />
-              </Tooltip>
-              <Tooltip title="Remove this Project" arrow>
-                <DeleteIcon
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleRemoveFromProject(proj.proj_id)}
-                />
-              </Tooltip>
+                    {/* Only admin can edit or remove */}
+                    {isAdmin && (
+                      <>
+                        <Tooltip title="Edit Project Detail" arrow>
+                          <EditIcon
+                            style={{ cursor: "pointer" }}
+                          />
+                        </Tooltip>
+                        <Tooltip title="Remove this Project" arrow>
+                          <DeleteIcon
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRemoveFromProject(proj.proj_id)}
+                          />
+                        </Tooltip>
+                      </>
+                    )}
                 </div>
             </div>
           ))
@@ -232,28 +240,34 @@ function MemberDetail({ memberId }) {
                     <p>{proj.proj_desc}</p>
                 </div>
                 <div className="action-btns">
+                  {/* Only admin can add */}
+                  {isAdmin && (
                     <button
-                  onClick={() => handleAddToProject(proj.proj_id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  Add
-                </button>
+                      onClick={() => handleAddToProject(proj.proj_id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Add
+                    </button>
+                  )}
                 </div>
             </div>
           ))
         )}
       </div>
+      {/* Only admin can delete member */}
+      {isAdmin && (
         <div className="delete-btn">
-        <button onClick={handleDelete}>Delete Member</button>
-      </div>
+          <button onClick={handleDelete}>Delete Member</button>
+        </div>
+      )}
       {editProject && (
-    <ProjectDetailPopup
-      project={editProject}
-      memberId={memberId}
-      onClose={() => setEditProject(null)}
-      onDataChange={refreshTotals}
-    />
-  )}
+        <ProjectDetailPopup
+          project={editProject}
+          memberId={memberId}
+          onClose={() => setEditProject(null)}
+          onDataChange={refreshTotals}
+        />
+      )}
     </div>
   );
 }
@@ -266,6 +280,9 @@ function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
   const [pieceHistory, setPieceHistory] = React.useState([]);
   const [paymentHistory, setPaymentHistory] = React.useState([]);
   const [refresh, setRefresh] = React.useState(false);
+
+  // Role check for popup
+  const isAdmin = localStorage.getItem("role") === "admin";
 
   // Fetch piece history for this member in this project
   React.useEffect(() => {
@@ -402,13 +419,15 @@ function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
           <div className="history">
             <div className="head d-flex justify-content-between align-items-center">
               <h4>Piece Received History</h4>
-              <Tooltip title="Add More Pieces" arrow>
-                <AddIcon
-                  fontSize="large"
-                  style={{ cursor: "pointer" }}
-                  onClick={handleAddMorePiece}
-                />
-              </Tooltip>
+              {isAdmin && (
+                <Tooltip title="Add More Pieces" arrow>
+                  <AddIcon
+                    fontSize="large"
+                    style={{ cursor: "pointer" }}
+                    onClick={handleAddMorePiece}
+                  />
+                </Tooltip>
+              )}
             </div>
             <hr />
             <div style={{ maxHeight: 300, overflowY: "auto" }}>
@@ -432,13 +451,15 @@ function ProjectDetailPopup({ project, memberId, onClose, onDataChange }) {
           <div className="history">
             <div className="head d-flex justify-content-between align-items-center">
               <h4>Payment Paid History</h4>
-              <Tooltip title="Add Payment" arrow>
-                <AddIcon
-                  fontSize="large"
-                  style={{ cursor: "pointer" }}
-                  onClick={handleAddPayment}
-                />
-              </Tooltip>
+              {isAdmin && (
+                <Tooltip title="Add Payment" arrow>
+                  <AddIcon
+                    fontSize="large"
+                    style={{ cursor: "pointer" }}
+                    onClick={handleAddPayment}
+                  />
+                </Tooltip>
+              )}
             </div>
             <hr />
             <div style={{ maxHeight: 300, overflowY: "auto" }}>

@@ -11,33 +11,41 @@ function Login() {
 
   const navigate = useNavigate();
 
- const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    const response = await axios.post(
-      "https://new-backend-3jbn.onrender.com/login",
-      { email, password }
-    );
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "https://new-backend-3jbn.onrender.com/login",
+        { email, password }
+      );
 
-    if (response.data.success && response.data.token) {
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("token", response.data.token); // Store JWT
-      navigate("/homepage");
-    } else {
-      alert(response.data.message);
+      if (response.data.success && response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("token", response.data.token); // Store JWT
+
+        // Store user role for frontend role-based UI
+        if (response.data.user && response.data.user.role) {
+          localStorage.setItem("role", response.data.user.role);
+        } else {
+          localStorage.removeItem("role");
+        }
+
+        navigate("/homepage");
+      } else {
+        alert(response.data.message);
+        setEmail("");
+        setPassword("");
+      }
+    } catch (error) {
+      alert("Login failed. Try again.");
       setEmail("");
       setPassword("");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    alert("Login failed. Try again.");
-    setEmail("");
-    setPassword("");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleOAuthPopup = (provider) => {
     const popup = window.open(
@@ -83,6 +91,12 @@ function Login() {
 
         if (response.data.success) {
           localStorage.setItem("user", JSON.stringify(response.data.user));
+          // Store user role for frontend role-based UI
+          if (response.data.user && response.data.user.role) {
+            localStorage.setItem("role", response.data.user.role);
+          } else {
+            localStorage.removeItem("role");
+          }
           navigate("/homepage");
         } else {
           navigate("/login");

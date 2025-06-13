@@ -19,6 +19,9 @@ function Detail({ data }) {
   const [activeTab, setActiveTab] = React.useState("details");
   const [paymentHistory, setPaymentHistory] = React.useState([]);
 
+  // Role check: Only admin can add/edit/delete
+  const isAdmin = localStorage.getItem("role") === "admin";
+
   // Helper to get JWT token from localStorage
   const getAuthHeader = () => {
     const token = localStorage.getItem("token");
@@ -344,24 +347,26 @@ function Detail({ data }) {
         </p>
         <p>Price: ₹ {data.project.price}/- per piece</p>
         <h4>
-  Total Earning: ₹{" "}
-  {(
-    Object.values(memberPieceTotals).reduce((sum, val) => sum + val, 0) *
-    Number(data.project.price)
-  ).toFixed(2)}
-</h4>
+          Total Earning: ₹{" "}
+          {(
+            Object.values(memberPieceTotals).reduce((sum, val) => sum + val, 0) *
+            Number(data.project.price)
+          ).toFixed(2)}
+        </h4>
       </div>
       <br />
       <hr />
       <div className="project-head">
         <h2>Enrolled Members</h2>
-        <Tooltip title="Add New Member" arrow>
-          <AddIcon
-            fontSize="large"
-            onClick={() => setForm(true)}
-            style={{ cursor: "pointer" }}
-          />
-        </Tooltip>
+        {isAdmin && (
+          <Tooltip title="Add New Member" arrow>
+            <AddIcon
+              fontSize="large"
+              onClick={() => setForm(true)}
+              style={{ cursor: "pointer" }}
+            />
+          </Tooltip>
+        )}
       </div>
       <div className="project-members">
         {members.length === 0 ? (
@@ -381,26 +386,30 @@ function Detail({ data }) {
               </div>
               <div className="action-btns member-action-btns">
                 <p>{memberPieceTotals[member.mem_id] || 0} Piece</p>
-                <Tooltip title="Edit Member" arrow>
-                  <EditIcon
-                    fontSize="small"
-                    onClick={() => {
-                      setMemberData(member); // set the selected member's data
-                      setEditPiece(true); // open the edit form
-                      setMemberDetail(false); // close detail popup if open
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                </Tooltip>
-                <Tooltip title="Remove Member from this Project" arrow>
-                  <DeleteIcon
-                    fontSize="small"
-                    onClick={() => {
-                      handleMemberDelete(member.mem_id);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                </Tooltip>
+                {isAdmin && (
+                  <>
+                    <Tooltip title="Edit Member" arrow>
+                      <EditIcon
+                        fontSize="small"
+                        onClick={() => {
+                          setMemberData(member);
+                          setEditPiece(true);
+                          setMemberDetail(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Remove Member from this Project" arrow>
+                      <DeleteIcon
+                        fontSize="small"
+                        onClick={() => {
+                          handleMemberDelete(member.mem_id);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                  </>
+                )}
               </div>
             </div>
           ))
@@ -425,21 +434,25 @@ function Detail({ data }) {
                 </p>
               </div>
               <div className="action-btns existing_member-action-btns">
-                <button
-                  onClick={() => handleAddExistingMember(member.mem_id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  Add
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleAddExistingMember(member.mem_id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Add
+                  </button>
+                )}
               </div>
             </div>
           ))
         )}
       </div>
-      <div className="delete-btn">
-        <button onClick={handleDelete}>Delete Project</button>
-      </div>
-      {form && (
+      {isAdmin && (
+        <div className="delete-btn">
+          <button onClick={handleDelete}>Delete Project</button>
+        </div>
+      )}
+      {isAdmin && form && (
         <div className="pop-up-form">
           <h3>Add New Member</h3>
           <Tooltip title="Close Form" arrow>
@@ -558,13 +571,15 @@ function Detail({ data }) {
               <div className="history">
                 <div className="head d-flex justify-content-between align-items-center">
                   <h4>Piece Received History</h4>
-                  <Tooltip title="Add More Pieces" arrow>
-                    <AddIcon
-                      fontSize="large"
-                      style={{ cursor: "pointer" }}
-                      onClick={handleAddMorePiece}
-                    />
-                  </Tooltip>
+                  {isAdmin && (
+                    <Tooltip title="Add More Pieces" arrow>
+                      <AddIcon
+                        fontSize="large"
+                        style={{ cursor: "pointer" }}
+                        onClick={handleAddMorePiece}
+                      />
+                    </Tooltip>
+                  )}
                 </div>
                 <hr />
                 <div style={{ maxHeight: 300, overflowY: "auto" }}>
@@ -588,51 +603,53 @@ function Detail({ data }) {
               <div className="history">
                 <div className="head d-flex justify-content-between align-items-center">
                   <h4>Payment Paid History</h4>
-                  <Tooltip title="Add Payment" arrow>
-                    <AddIcon
-                      fontSize="large"
-                      style={{ cursor: "pointer" }}
-                      onClick={async () => {
-                        const amount = prompt("Enter payment amount:");
-                        if (!amount || isNaN(amount) || Number(amount) <= 0) {
-                          alert("Please enter a valid amount.");
-                          return;
-                        }
-                        const remarks = prompt("Remarks (optional):");
-                        try {
-                          const payload = {
-                            proj_id: data.project.proj_id,
-                            amount: Number(amount),
-                            remarks: remarks || "",
-                          };
-                          const res = await axios.post(
-                            `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments`,
-                            payload,
-                            {
-                              headers: {
-                                "Content-Type": "application/json",
-                                ...getAuthHeader(),
-                              },
-                            }
-                          );
-                          if (res.data.success) {
-                            alert("Payment added!");
-                            // Refresh payment history
-                            const payRes = await axios.get(
-                              `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`,
-                              { headers: getAuthHeader() }
-                            );
-                            if (payRes.data.success)
-                              setPaymentHistory(payRes.data.payments);
-                          } else {
-                            alert("Error adding payment: " + res.data.message);
+                  {isAdmin && (
+                    <Tooltip title="Add Payment" arrow>
+                      <AddIcon
+                        fontSize="large"
+                        style={{ cursor: "pointer" }}
+                        onClick={async () => {
+                          const amount = prompt("Enter payment amount:");
+                          if (!amount || isNaN(amount) || Number(amount) <= 0) {
+                            alert("Please enter a valid amount.");
+                            return;
                           }
-                        } catch (err) {
-                          alert("Error adding payment: " + err.message);
-                        }
-                      }}
-                    />
-                  </Tooltip>
+                          const remarks = prompt("Remarks (optional):");
+                          try {
+                            const payload = {
+                              proj_id: data.project.proj_id,
+                              amount: Number(amount),
+                              remarks: remarks || "",
+                            };
+                            const res = await axios.post(
+                              `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments`,
+                              payload,
+                              {
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  ...getAuthHeader(),
+                                },
+                              }
+                            );
+                            if (res.data.success) {
+                              alert("Payment added!");
+                              // Refresh payment history
+                              const payRes = await axios.get(
+                                `https://new-backend-3jbn.onrender.com/member/${memberData.mem_id}/payments?proj_id=${data.project.proj_id}`,
+                                { headers: getAuthHeader() }
+                              );
+                              if (payRes.data.success)
+                                setPaymentHistory(payRes.data.payments);
+                            } else {
+                              alert("Error adding payment: " + res.data.message);
+                            }
+                          } catch (err) {
+                            alert("Error adding payment: " + err.message);
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  )}
                 </div>
                 <hr />
                 <div style={{ maxHeight: 300, overflowY: "auto" }}>
@@ -656,7 +673,7 @@ function Detail({ data }) {
           </div>
         </div>
       )}
-      {editPiece && memberData && (
+      {isAdmin && editPiece && memberData && (
         <div className="pop-up-form">
           <h3>Edit Member</h3>
           <Tooltip title="Close Form" arrow>
