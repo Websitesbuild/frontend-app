@@ -565,19 +565,21 @@ function Detail({ data }) {
                   </Tooltip>
                 </div>
                 <hr />
-                {pieceHistory.length === 0 ? (
-                  <p>No piece history found.</p>
-                ) : (
-                  pieceHistory.map((entry) => (
-                    <div
-                      className="history-list d-flex justify-content-between align-items-center"
-                      key={entry.id}
-                    >
-                      <p>Piece Received: {entry.piece_count}</p>
-                      <p>{formatIndianTime(entry.completed_at)}</p>
-                    </div>
-                  ))
-                )}
+                <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                  {pieceHistory.length === 0 ? (
+                    <p>No piece history found.</p>
+                  ) : (
+                    pieceHistory.map((entry) => (
+                      <div
+                        className="history-list d-flex justify-content-between align-items-center"
+                        key={entry.id}
+                      >
+                        <p>Piece Received: {entry.piece_count}</p>
+                        <p>{formatIndianTime(entry.completed_at)}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
             {activeTab === "payments" && (
@@ -631,20 +633,22 @@ function Detail({ data }) {
                   </Tooltip>
                 </div>
                 <hr />
-                {paymentHistory.length === 0 ? (
-                  <p>No payment history found.</p>
-                ) : (
-                  paymentHistory.map((entry) => (
-                    <div
-                      className="history-list d-flex justify-content-between align-items-center"
-                      key={entry.id}
-                    >
-                      <p>Amount Paid: ₹{entry.amount}</p>
-                      <p>{formatIndianTime(entry.paid_at)}</p>
-                      {entry.remarks && <p>Remarks: {entry.remarks}</p>}
-                    </div>
-                  ))
-                )}
+                <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                  {paymentHistory.length === 0 ? (
+                    <p>No payment history found.</p>
+                  ) : (
+                    paymentHistory.map((entry) => (
+                      <div
+                        className="history-list d-flex justify-content-between align-items-center"
+                        key={entry.id}
+                      >
+                        <p>Amount Paid: ₹{entry.amount}</p>
+                        <p>{formatIndianTime(entry.paid_at)}</p>
+                        {entry.remarks && <p>Remarks: {entry.remarks}</p>}
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>
