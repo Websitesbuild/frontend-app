@@ -48,66 +48,81 @@ function Login() {
   };
 
   const handleOAuthPopup = (provider) => {
-    const popup = window.open(
-      `https://new-backend-3jbn.onrender.com/auth/${provider}`,
-      "_blank",
-      "width=500,height=600"
-    );
+  const popup = window.open(
+    `https://new-backend-3jbn.onrender.com/auth/${provider}`,
+    "_blank",
+    "width=500,height=600"
+  );
 
-    const allowedOrigins = [
-      "https://frontend-app-inky-three.vercel.app",
-      "https://new-backend-3jbn.onrender.com",
-      "http://localhost:3000",
-      "http://localhost:5000"
-    ];
+  const allowedOrigins = [
+    "https://frontend-app-inky-three.vercel.app",
+    "https://new-backend-3jbn.onrender.com",
+    "http://localhost:3000",
+    "http://localhost:5000"
+  ];
 
-    const receiveMessage = async (event) => {
-      if (
-        !allowedOrigins.includes(event.origin) ||
-        !event.data ||
-        event.data.source === "react-devtools-bridge" ||
-        event.data.source === "react-devtools-content-script" ||
-        !event.data.success ||
-        !event.data.token
-      ) {
-        return;
-      }
+  let received = false;
 
-      window.removeEventListener("message", receiveMessage);
-      popup?.close();
+  const receiveMessage = async (event) => {
+    if (
+      !allowedOrigins.includes(event.origin) ||
+      !event.data ||
+      event.data.source === "react-devtools-bridge" ||
+      event.data.source === "react-devtools-content-script" ||
+      !event.data.success ||
+      !event.data.token
+    ) {
+      return;
+    }
 
-      try {
-        localStorage.setItem("token", event.data.token);
-        localStorage.setItem("isLoggedIn", "true");
+    received = true;
+    window.removeEventListener("message", receiveMessage);
+    popup?.close();
 
-        const response = await axios.get(
-          "https://new-backend-3jbn.onrender.com/auth/user",
-          {
-            headers: {
-              Authorization: `Bearer ${event.data.token}`,
-            },
-          }
-        );
+    try {
+      localStorage.setItem("token", event.data.token);
+      localStorage.setItem("isLoggedIn", "true");
 
-        if (response.data.success) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          // Store user role for frontend role-based UI
-          if (response.data.user && response.data.user.role) {
-            localStorage.setItem("role", response.data.user.role);
-          } else {
-            localStorage.removeItem("role");
-          }
-          navigate("/homepage");
-        } else {
-          navigate("/login");
+      const response = await axios.get(
+        "https://new-backend-3jbn.onrender.com/auth/user",
+        {
+          headers: {
+            Authorization: `Bearer ${event.data.token}`,
+          },
         }
-      } catch (err) {
+      );
+
+      if (response.data.success) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        if (response.data.user && response.data.user.role) {
+          localStorage.setItem("role", response.data.user.role);
+        } else {
+          localStorage.removeItem("role");
+        }
+        navigate("/homepage");
+      } else {
         navigate("/login");
       }
-    };
-
-    window.addEventListener("message", receiveMessage, { once: true });
+    } catch (err) {
+      navigate("/login");
+    }
   };
+
+  window.addEventListener("message", receiveMessage, { once: true });
+
+  // Fallback: If popup closes but no message received, check for token in localStorage
+  const popupInterval = setInterval(() => {
+    if (popup && popup.closed && !received) {
+      window.removeEventListener("message", receiveMessage);
+      clearInterval(popupInterval);
+      // Optionally, you can try to fetch user info here if token was set
+      // Or show an error/toast to retry
+    }
+    if (received) {
+      clearInterval(popupInterval);
+    }
+  }, 500);
+};
 
   // Loader spinner component
   function Loader() {
