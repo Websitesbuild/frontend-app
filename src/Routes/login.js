@@ -51,7 +51,7 @@ function Login() {
   const popup = window.open(
     `https://new-backend-3jbn.onrender.com/auth/${provider}`,
     "_blank",
-    "width=500,height=600"
+    "width=700,height=800"
   );
 
   const allowedOrigins = [
